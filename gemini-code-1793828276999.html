@@ -1,0 +1,2865 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Advisory & Client Presentation Suite</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for analytics & projections -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js DataLabels Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#FDF2F2',
+                            100: '#FDE8E8',
+                            200: '#FBD5D5',
+                            500: '#E02424',
+                            600: '#D61A0C',
+                            700: '#C4180C',
+                            800: '#9B1C1C',
+                            900: '#7E1C1C',
+                        },
+                        slateCustom: {
+                            50: '#F8FAFC',
+                            100: '#F1F5F9',
+                            200: '#E2E8F0',
+                            700: '#334155',
+                            800: '#1E293B',
+                            900: '#0F172A',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Dedicated Professional PDF & Print Optimization */
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            @page { size: A4; margin: 12mm; }
+            body { 
+                background: white !important; 
+                color: #0F172A !important; 
+                font-size: 11px !important; 
+                line-height: 1.4 !important;
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important; 
+            }
+            header, footer { display: none !important; }
+            .print-container { width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+            
+            /* Hide raw web app tab panels and show summary report layout */
+            .tab-content { display: none !important; }
+            #tab-summary { display: block !important; opacity: 1 !important; transform: none !important; }
+            
+            .print-card { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
+            
+            /* Professional spacing and page break containment for export */
+            .print-section-block {
+                page-break-inside: avoid !important;
+                margin-bottom: 14px !important;
+                padding: 10px 14px !important;
+                background: #F8FAFC !important;
+                border: 1px solid #CBD5E1 !important;
+                border-radius: 6px !important;
+            }
+            textarea { border: none !important; background: transparent !important; resize: none !important; height: auto !important; }
+        }
+        .print-only { display: none; }
+        
+        /* Tab Transitions */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.25s ease-in-out; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(3px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom Scrollbar Styles */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #F1F5F9; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slateCustom-800 min-h-full flex flex-col justify-between antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <!-- Brand Header -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white font-black text-xl shadow-md shadow-brand-600/20">
+                        <i class="fa-solid fa-vault"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-black text-lg text-slateCustom-900 leading-tight tracking-tight">PREMIER<span class="text-brand-600">FINANCIAL</span></h1>
+                        <p class="text-xs text-slate-500 font-medium">Financial Advisory & Client Presentation Suite</p>
+                    </div>
+                </div>
+
+                <!-- Right Header Actions -->
+                <div class="flex items-center space-x-3">
+                    <div class="hidden md:flex flex-col text-right mr-3">
+                        <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">Active Client</span>
+                        <span id="headerClientName" class="text-sm font-bold text-slateCustom-900">Juan Dela Cruz</span>
+                    </div>
+                    <button onclick="prepareAndPrintPDF()" class="px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex items-center space-x-2">
+                        <i class="fa-solid fa-file-pdf text-brand-600"></i>
+                        <span class="hidden sm:inline">Export PDF / Print</span>
+                    </button>
+                    <button onclick="resetAllSuiteData()" class="px-3 py-2 text-xs sm:text-sm font-semibold text-brand-700 hover:bg-brand-50 rounded-xl transition flex items-center space-x-1.5 border border-brand-200">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span class="hidden sm:inline">Reset All</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Navigation Toolbar -->
+        <div class="bg-slateCustom-900 text-white shadow-inner border-t border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <nav class="flex space-x-1 sm:space-x-3 overflow-x-auto py-2.5 scrollbar-none" id="stepNav">
+                    <button onclick="switchTab('tab-profile')" id="nav-tab-profile" class="nav-btn px-4 py-2 text-xs sm:text-sm font-bold rounded-xl whitespace-nowrap transition flex items-center space-x-2 bg-brand-600 text-white shadow-md shadow-brand-600/30">
+                        <span class="step-num w-5 h-5 rounded-full bg-white/20 text-[11px] flex items-center justify-center font-black">1</span>
+                        <span>Client Profile & Cashflow</span>
+                    </button>
+                    <button onclick="switchTab('tab-business')" id="nav-tab-business" class="nav-btn hidden px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap transition flex items-center space-x-2">
+                        <span class="step-num w-5 h-5 rounded-full bg-slate-800 text-[11px] flex items-center justify-center font-bold">2</span>
+                        <span>Business Contingency & Funding</span>
+                    </button>
+                    <button onclick="switchTab('tab-life')" id="nav-tab-life" class="nav-btn px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap transition flex items-center space-x-2">
+                        <span class="step-num w-5 h-5 rounded-full bg-slate-800 text-[11px] flex items-center justify-center font-bold">3</span>
+                        <span>Life Protection (HLV)</span>
+                    </button>
+                    <button onclick="switchTab('tab-edu')" id="nav-tab-edu" class="nav-btn px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap transition flex items-center space-x-2">
+                        <span class="step-num w-5 h-5 rounded-full bg-slate-800 text-[11px] flex items-center justify-center font-bold">4</span>
+                        <span>Education Funding</span>
+                    </button>
+                    <button onclick="switchTab('tab-retirement')" id="nav-tab-retirement" class="nav-btn px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap transition flex items-center space-x-2">
+                        <span class="step-num w-5 h-5 rounded-full bg-slate-800 text-[11px] flex items-center justify-center font-bold">5</span>
+                        <span>Retirement Simulator</span>
+                    </button>
+                    <button onclick="switchTab('tab-summary')" id="nav-tab-summary" class="nav-btn px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap transition flex items-center space-x-2">
+                        <span class="step-num w-5 h-5 rounded-full bg-slate-800 text-[11px] flex items-center justify-center font-bold">6</span>
+                        <span>Portfolio Summary</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main App Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full space-y-8 print-container">
+
+        <!-- STEP 1: CLIENT PROFILE, GOALS & MONEY JAR CASH FLOW ANALYSIS SYSTEM -->
+        <div id="tab-profile" class="tab-content active space-y-8">
+            
+            <!-- SECTION 1: Client Bio & Priority Goals -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slateCustom-900 flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-lg bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">1</span>
+                            Client Profile & Financial Goals
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Capture client parameters, advisor details, and prioritize financial milestones.</p>
+                    </div>
+                    <span class="px-3 py-1 bg-brand-50 text-brand-700 font-bold text-xs rounded-full border border-brand-100">Step 1.1</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Column 1: Client Personal Details & Toggles -->
+                    <div class="space-y-4">
+                        <h3 class="font-bold text-slate-800 border-l-4 border-brand-600 pl-2 text-xs uppercase tracking-wider">Client Parameters</h3>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Full Name</label>
+                            <input type="text" id="clientName" value="Juan Dela Cruz" oninput="updateProfileMaster()" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Birthdate</label>
+                            <input type="date" id="clientBirthday" value="1994-01-01" onchange="calculateAgeFromBirthday()" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none font-medium">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Current Age</label>
+                                <input type="number" id="clientAge" value="32" readonly class="w-full px-3.5 py-2 text-sm border border-slate-200 bg-slate-50 rounded-xl outline-none font-bold text-slate-700 cursor-not-allowed">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Target Retirement</label>
+                                <input type="number" id="retirementAge" value="60" min="40" max="85" oninput="updateProfileMaster()" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none font-semibold">
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Yes/No Toggle Controls -->
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+                            <!-- With Business Toggle -->
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-700 uppercase">With Business?</span>
+                                <div class="inline-flex rounded-lg border border-slate-300 p-0.5 bg-white shadow-sm">
+                                    <button type="button" onclick="setBusinessToggle(true)" id="btnBizYes" class="px-3 py-1 text-xs font-bold rounded-md transition-all text-slate-600">YES</button>
+                                    <button type="button" onclick="setBusinessToggle(false)" id="btnBizNo" class="px-3 py-1 text-xs font-bold rounded-md transition-all bg-brand-600 text-white shadow">NO</button>
+                                </div>
+                            </div>
+                            <!-- With Children Toggle -->
+                            <div class="flex items-center justify-between border-t border-slate-200 pt-2.5">
+                                <span class="text-xs font-bold text-slate-700 uppercase">With Children?</span>
+                                <div class="inline-flex rounded-lg border border-slate-300 p-0.5 bg-white shadow-sm">
+                                    <button type="button" onclick="setChildrenToggle(true)" id="btnChildYes" class="px-3 py-1 text-xs font-bold rounded-md transition-all bg-brand-600 text-white shadow">YES</button>
+                                    <button type="button" onclick="setChildrenToggle(false)" id="btnChildNo" class="px-3 py-1 text-xs font-bold rounded-md transition-all text-slate-600">NO</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Dependents</label>
+                                <input type="number" id="dependents" value="2" min="0" oninput="updateProfileMaster()" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Advisor Name</label>
+                                <input type="text" id="advisorName" value="" placeholder="Enter advisor name..." oninput="updateProfileMaster()" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none font-medium">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Debt & Liquid Assets Balance Sheet -->
+                    <div class="space-y-4">
+                        <h3 class="font-bold text-slate-800 border-l-4 border-brand-600 pl-2 text-xs uppercase tracking-wider">Balance Sheet Quick Look</h3>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Existing Liabilities / Debt (₱)</label>
+                            <input type="number" id="totalDebts" value="450000" step="10000" oninput="updateProfileMaster()" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Current Savings & Liquid Assets (₱)</label>
+                            <input type="number" id="currentAssets" value="300000" step="10000" oninput="updateProfileMaster()" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none font-medium">
+                        </div>
+                        <div class="pt-2">
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Existing Life Insurance Coverage (₱)</label>
+                            <input type="number" id="existingInsurance" value="1000000" step="50000" oninput="updateProfileMaster()" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none font-medium">
+                        </div>
+                    </div>
+
+                    <!-- Column 3: Priority Ranking Sliders -->
+                    <div class="space-y-4">
+                        <h3 class="font-bold text-slate-800 border-l-4 border-brand-600 pl-2 text-xs uppercase tracking-wider">Goal Priority Ranking</h3>
+                        <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div>
+                                <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                                    <span>Emergency Reserve Fund</span>
+                                    <span id="priorityEFVal" class="text-brand-600 font-bold">High</span>
+                                </div>
+                                <input type="range" id="priorityEF" min="1" max="3" value="3" onchange="updateProfileMaster()" class="w-full accent-brand-600">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                                    <span>Income Protection / Insurance</span>
+                                    <span id="priorityLifeVal" class="text-brand-600 font-bold">High</span>
+                                </div>
+                                <input type="range" id="priorityLife" min="1" max="3" value="3" onchange="updateProfileMaster()" class="w-full accent-brand-600">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                                    <span>Children's Education</span>
+                                    <span id="priorityEduVal" class="text-brand-600 font-bold">Medium</span>
+                                </div>
+                                <input type="range" id="priorityEdu" min="1" max="3" value="2" onchange="updateProfileMaster()" class="w-full accent-brand-600">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                                    <span>Retirement Accumulation</span>
+                                    <span id="priorityRetVal" class="text-brand-600 font-bold">High</span>
+                                </div>
+                                <input type="range" id="priorityRet" min="1" max="3" value="3" onchange="updateProfileMaster()" class="w-full accent-brand-600">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: Money Jar Income Streams & Summary Dashboard -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slateCustom-900 flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-lg bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">2</span>
+                            Money Jar Income Streams & Cash Flow Summary
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Enter primary and secondary income streams to derive cash flow net availability.</p>
+                    </div>
+                    <span class="px-3 py-1 bg-brand-50 text-brand-700 font-bold text-xs rounded-full border border-brand-100">Step 1.2</span>
+                </div>
+
+                <!-- Income Inputs Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Primary Income (A)</label>
+                        <div class="relative rounded-lg shadow-sm mt-1">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 font-semibold text-sm">₱</div>
+                            <input type="number" id="income-a" value="85000" oninput="calculateMoneyJarTotals()" class="block w-full pl-8 pr-3 py-2 text-sm rounded-lg bg-white border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none font-semibold">
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Secondary / Business Income (B)</label>
+                        <div class="relative rounded-lg shadow-sm mt-1">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 font-semibold text-sm">₱</div>
+                            <input type="number" id="income-b" value="0" oninput="calculateMoneyJarTotals()" class="block w-full pl-8 pr-3 py-2 text-sm rounded-lg bg-white border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none font-semibold">
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Other Income (C)</label>
+                        <div class="relative rounded-lg shadow-sm mt-1">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 font-semibold text-sm">₱</div>
+                            <input type="number" id="income-c" value="0" oninput="calculateMoneyJarTotals()" class="block w-full pl-8 pr-3 py-2 text-sm rounded-lg bg-white border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none font-semibold">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cash Flow Summary Metric Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                    <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Monthly Income</p>
+                            <p id="summary-total-income" class="text-xl sm:text-2xl font-black text-slateCustom-900 mt-1">₱85,000.00</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 no-print">
+                            <i class="fa-solid fa-coins text-lg"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Expenses / Allocated</p>
+                            <p id="summary-total-allocated" class="text-xl sm:text-2xl font-black text-amber-600 mt-1">₱0.00</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 no-print">
+                            <i class="fa-solid fa-receipt text-lg"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Unallocated Net Flow</p>
+                            <p id="summary-net-flow" class="text-xl sm:text-2xl font-black text-slateCustom-900 mt-1">₱0.00</p>
+                        </div>
+                        <div id="net-flow-icon-container" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 no-print">
+                            <i class="fa-solid fa-scale-balanced text-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: Detailed Jar Expense Itemizer -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slateCustom-900 flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-lg bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">3</span>
+                            Detailed Jar Expense Management
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Customize specific expense items for each Money Jar across 5 core categories.</p>
+                    </div>
+                    <!-- Row Limit Controls -->
+                    <div class="flex items-center space-x-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
+                        <span class="text-xs font-semibold text-slate-600 px-2">Row Limit:</span>
+                        <button onclick="setItemLimit(5)" id="limit-btn-5" class="px-2.5 py-1 text-xs font-bold rounded-lg transition bg-brand-600 text-white">5</button>
+                        <button onclick="setItemLimit(10)" id="limit-btn-10" class="px-2.5 py-1 text-xs font-bold rounded-lg transition bg-white text-slate-700 border">10</button>
+                        <button onclick="setItemLimit(15)" id="limit-btn-15" class="px-2.5 py-1 text-xs font-bold rounded-lg transition bg-white text-slate-700 border">15</button>
+                        <button onclick="setItemLimit(30)" id="limit-btn-30" class="px-2.5 py-1 text-xs font-bold rounded-lg transition bg-white text-slate-700 border">30</button>
+                    </div>
+                </div>
+
+                <!-- Jar Tabs Bar -->
+                <div class="flex flex-wrap gap-2 border-b border-slate-200 pb-3" id="jar-tabs">
+                    <!-- Dynamic Jar Tabs -->
+                </div>
+
+                <!-- Active Jar Panel -->
+                <div id="jar-content-container" class="bg-slate-50/50 rounded-xl border border-slate-200 p-6">
+                    <!-- Dynamic Active Jar Content -->
+                </div>
+            </section>
+
+            <!-- SECTION 4: 5 Money Jars Breakdown Summary Table -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slateCustom-900 flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-lg bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">4</span>
+                            5 Money Jars Allocation Breakdown Summary
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Ideal percentage allocation targets vs actual cash distribution & variance.</p>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                    <table class="min-w-full divide-y divide-slate-200 text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                <th class="px-4 py-3.5">Money Jar Category</th>
+                                <th class="px-4 py-3.5 text-center">Ideal Target %</th>
+                                <th class="px-4 py-3.5 text-right">Ideal Target (₱)</th>
+                                <th class="px-4 py-3.5 text-right">Actual Subtotal (₱)</th>
+                                <th class="px-4 py-3.5 text-center">Actual %</th>
+                                <th class="px-4 py-3.5 text-right">Variance / Difference (₱)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="breakdown-table-body" class="divide-y divide-slate-200 bg-white">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SECTION 5: Visual Cash Flow Analytics & Advisor Feedback -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slateCustom-900 flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-lg bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">5</span>
+                            Visual Cash Flow Analytics & Financial Advisor Feedback
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Graphical jar analysis and automated financial health check feedback.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <!-- Jar Chart -->
+                    <div class="h-64 sm:h-72 flex justify-center items-center relative bg-slate-50 rounded-2xl p-4 border border-slate-200">
+                        <canvas id="jarChart"></canvas>
+                    </div>
+                    <!-- Analytics Progress Bars -->
+                    <div class="space-y-3" id="analytics-progress-bars">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Advisor Feedback Box -->
+                <div class="pt-4 border-t border-slate-100">
+                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">Real-Time Financial Health Analysis</h3>
+                    <div id="advisor-feedback-container" class="space-y-3">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- STEP 2: BUSINESS CONTINGENCY, FUNDING & EMERGENCY RESERVES -->
+        <div id="tab-business" class="tab-content space-y-8">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+                <div class="border-b border-slate-100 pb-4 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-slateCustom-900 flex items-center gap-2">
+                            <i class="fa-solid fa-briefcase text-brand-600"></i> Business Contingency, Emergency Funding & Continuity Plan
+                        </h2>
+                        <p class="text-sm text-slate-500">Calculate Business Emergency Reserves, Overhead Protection, Key Person Protection, and Buy-Sell Funding Gap.</p>
+                    </div>
+                    <span class="px-3 py-1 bg-brand-50 text-brand-700 font-bold text-xs rounded-full border border-brand-100">Step 2 of 6</span>
+                </div>
+
+                <!-- SECTION A: Business Emergency Fund & Operational Runway -->
+                <div class="space-y-4">
+                    <h3 class="font-bold text-slate-800 border-l-4 border-brand-600 pl-2 text-sm uppercase tracking-wider">1. Business Emergency Fund (Operational Runway)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Monthly Business Overhead (₱)</label>
+                            <input type="number" id="bizMonthlyOverhead" value="150000" step="10000" oninput="calculateBusinessContingency()" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none font-semibold">
+                            <span class="text-[11px] text-slate-400 mt-1 block">Includes payroll, rent, utilities, supplier payments.</span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Target Emergency Runway (Months)</label>
+                            <select id="bizRunwayMonths" onchange="calculateBusinessContingency()" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none font-semibold cursor-pointer">
+                                <option value="3">3 Months (Standard Risk)</option>
+                                <option value="6" selected>6 Months (Recommended)</option>
+                                <option value="9">9 Months (High Volatility)</option>
+                                <option value="12">12 Months (Maximum Security)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Current Liquid Cash Reserve (₱)</label>
+                            <input type="number" id="bizCurrentCash" value="300000" step="50000" oninput="calculateBusinessContingency()" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none font-semibold">
+                        </div>
+                    </div>
+
+                    <!-- Business Emergency Summary Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Target Biz Emergency Fund</span>
+                            <h4 id="bizTargetEFDisplay" class="text-xl font-black text-slateCustom-900 mt-1">₱900,000</h4>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Existing Cash Credit</span>
+                            <h4 id="bizCurrentCashDisplay" class="text-xl font-black text-slate-700 mt-1">₱300,000</h4>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-l-4 border-brand-600">
+                            <span class="text-xs font-bold text-brand-600 uppercase">Biz Emergency Fund Gap</span>
+                            <h4 id="bizEFGapDisplay" class="text-xl font-black text-brand-600 mt-1">₱600,000</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION B: Key Person & Business Continuity Funding -->
+                <div class="space-y-4 pt-4 border-t border-slate-100">
+                    <h3 class="font-bold text-slate-800 border-l-4 border-brand-600 pl-2 text-sm uppercase tracking-wider">2. Business Continuity & Key Person Protection</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Business Valuation & Loan Contingency</h4>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Estimated Business Valuation / Share (₱)</label>
+                                <input type="number" id="bizValuation" value="5000000" step="100000" oninput="calculateBusinessContingency()" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Outstanding Business Loans / Payables (₱)</label>
+                                <input type="number" id="bizLoans" value="1200000" step="50000" oninput="calculateBusinessContingency()" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Key Executive Replacement Cost / Year (₱)</label>
+                                <input type="number" id="bizKeyPersonCost" value="800000" step="50000" oninput="calculateBusinessContingency()" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none font-semibold">
+                            </div>
+                        </div>
+
+                        <!-- Business Risk & Funding Results -->
+                        <div class="bg-slateCustom-900 text-white rounded-2xl p-6 flex flex-col justify-between shadow-lg border-l-8 border-brand-600">
+                            <div>
+                                <span class="text-xs font-bold text-brand-400 uppercase tracking-widest">Total Business Protection Need</span>
+                                <div id="bizTotalProtectionNeed" class="text-3xl sm:text-4xl font-black my-2">₱7,000,000</div>
+                                <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+                                    Combines Business Loan Extinguishment, 1-Year Key Executive Replacement, and Buy-Sell Funding Requirement to ensure uninterrupted business operations upon any contingency.
+                                </p>
+                            </div>
+                            <div class="pt-4 border-t border-slate-800 flex justify-between text-xs">
+                                <span class="text-slate-400">Recommended Plan:</span>
+                                <span class="font-bold text-brand-400">PRUMillion / PRULink Key-Person Plan</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 3: LIFE PROTECTION (HUMAN LIFE VALUE & DEBT LIQUIDATION) -->
+        <div id="tab-life" class="tab-content space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="border-b border-slate-100 pb-4 mb-6 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-slateCustom-900 flex items-center gap-2">
+                            <i class="fa-solid fa-shield-halved text-brand-600"></i> Life Insurance Needs Calculator (HLV)
+                        </h2>
+                        <p class="text-sm text-slate-500">Human Life Value & Debt Liquidation Analysis to establish complete family income security.</p>
+                    </div>
+                    <span class="px-3 py-1 bg-brand-50 text-brand-700 font-bold text-xs rounded-full border border-brand-100">Step 3 of 6</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Form Controls -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Years of Income Replacement Goal</label>
+                            <div class="flex items-center space-x-3">
+                                <input type="range" id="incomeReplaceYears" min="1" max="25" value="10" oninput="calculateLifeNeeds()" class="w-full accent-brand-600">
+                                <span id="incomeReplaceYearsVal" class="font-bold text-slate-900 w-14 text-center border rounded-lg py-1 text-sm bg-slate-50">10 yrs</span>
+                            </div>
+                            <span class="text-[11px] text-slate-400 mt-1 block">Recommended benchmark: 5 to 10 years of family living expenses.</span>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Final Expenses & Emergency Medical Reserve (₱)</label>
+                            <input type="number" id="finalExpenses" value="300000" step="50000" oninput="calculateLifeNeeds()" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none font-medium">
+                        </div>
+
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-slate-600">Annual Living Expense Goal:</span>
+                                <span id="annualExpenseCalc" class="font-bold text-slate-900">₱0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-600">Total Liabilities to Liquidate:</span>
+                                <span id="debtsCalc" class="font-bold text-slate-900">₱0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-600">Existing Policy & Liquid Asset Credit:</span>
+                                <span id="assetsCreditCalc" class="font-bold text-emerald-600">- ₱0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Result Card & Visualization -->
+                    <div class="lg:col-span-7 flex flex-col justify-between space-y-6">
+                        <div class="bg-slateCustom-900 text-white rounded-2xl p-6 shadow-lg border-l-8 border-brand-600">
+                            <span class="text-xs font-bold text-brand-500 uppercase tracking-widest">Calculated Life Protection Gap</span>
+                            <div id="netLifeNeedDisplay" class="text-4xl sm:text-5xl font-black my-2">₱0.00</div>
+                            <p class="text-xs text-slate-300">Total net coverage needed to maintain standard of living and extinguish liabilities.</p>
+                        </div>
+
+                        <!-- Donut Chart -->
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex-grow relative flex items-center justify-center" style="min-height: 220px;">
+                            <canvas id="lifeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 4: MULTI-CHILDREN EDUCATION FUNDING PROJECTOR -->
+        <div id="tab-edu" class="tab-content space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+                <div class="border-b border-slate-100 pb-4 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-slateCustom-900 flex items-center gap-2">
+                            <i class="fa-solid fa-graduation-cap text-brand-600"></i> Children's Education Fund Calculator
+                        </h2>
+                        <p class="text-sm text-slate-500">Add multiple children to compute individual tuition inflation projections and combined funding targets.</p>
+                    </div>
+                    <span class="px-3 py-1 bg-brand-50 text-brand-700 font-bold text-xs rounded-full border border-brand-100">Step 4 of 6</span>
+                </div>
+
+                <!-- Number of Children Selector Bar -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-200 gap-4">
+                    <div class="flex items-center space-x-3">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-700">Number of Children:</label>
+                        <select id="numChildrenSelect" onchange="changeNumChildren(this.value)" class="px-4 py-2 border border-slate-300 rounded-xl bg-white text-sm font-bold text-brand-700 focus:ring-2 focus:ring-brand-500 outline-none cursor-pointer">
+                            <option value="1" selected>1 Child</option>
+                            <option value="2">2 Children</option>
+                            <option value="3">3 Children</option>
+                            <option value="4">4 Children</option>
+                            <option value="5">5 Children</option>
+                        </select>
+                    </div>
+
+                    <!-- Cumulative Combined Goal Display -->
+                    <div class="bg-brand-600 text-white px-5 py-2.5 rounded-xl shadow flex items-center space-x-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-brand-200">Combined Total College Goal:</span>
+                        <span id="combinedEduCostDisplay" class="text-xl font-black">₱0</span>
+                    </div>
+                </div>
+
+                <!-- Dynamic Children Input & Cards Container -->
+                <div id="childrenContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Populated dynamically per child -->
+                </div>
+
+                <!-- Education Comparison & Accumulation Chart -->
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                    <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Education Inflation Comparison (Today's Tuition vs Future Target)</h3>
+                    <div class="relative h-64 sm:h-72">
+                        <canvas id="eduChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 5: RETIREMENT CALCULATOR & DYNAMIC PROPOSAL GENERATOR -->
+        <div id="tab-retirement" class="tab-content space-y-8">
+            
+            <!-- Retirement Calculation Parameters & Results Dashboard -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slateCustom-900 flex items-center gap-2">
+                            <i class="fa-solid fa-calculator text-brand-600"></i> Retirement Target Calculator
+                        </h2>
+                        <p class="text-sm text-slate-500">Calculate future pension needs and monthly savings targets.</p>
+                    </div>
+                    <span class="px-3 py-1 bg-brand-50 text-brand-700 font-bold text-xs rounded-full border border-brand-100">Step 5 of 6</span>
+                </div>
+
+                <!-- Parameters Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Desired Monthly Income (Today's Value)</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-2.5 text-slate-400 font-bold text-sm">₱</span>
+                            <input type="number" id="desiredMonthly" value="20000" step="5000" class="w-full p-2.5 pl-8 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-bold text-slateCustom-900" oninput="calculateRetirementMaster()">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Estimated Inflation (%)</label>
+                        <input type="number" id="inflationRate" value="4.0" step="0.5" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-semibold" oninput="calculateRetirementMaster()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Investment Return (%)</label>
+                        <input type="number" id="investmentReturn" value="8.0" step="0.5" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-semibold" oninput="calculateRetirementMaster()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Years to Retirement</label>
+                        <input type="text" id="yearsToRetireDisplay" readonly class="w-full p-2.5 border border-slate-200 bg-slate-50 rounded-xl text-sm font-bold text-slate-700">
+                    </div>
+                </div>
+
+                <!-- Three Summary Highlight Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-brand-600 border border-slate-200 space-y-1">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Future Monthly Needed</span>
+                        <h3 id="resFutureMonthly" class="text-2xl font-black text-slateCustom-900">₱0</h3>
+                        <p id="resYearsToRetire" class="text-xs text-slate-500 font-medium">Monthly Payout at Retirement</p>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-slateCustom-900 border border-slate-200 space-y-1">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Target Lump Sum Retirement Fund</span>
+                        <h3 id="resTargetFund" class="text-2xl font-black text-slateCustom-900">₱0</h3>
+                        <p class="text-xs text-slate-500 font-medium">Total Capital Nest Egg Required</p>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-emerald-600 border border-slate-200 space-y-1">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Required Monthly Savings</span>
+                        <h3 id="resMonthlySaving" class="text-2xl font-black text-emerald-600">₱0</h3>
+                        <p class="text-xs text-slate-500 font-medium">Target Monthly Allocation Goal</p>
+                    </div>
+                </div>
+
+                <!-- Proposal Section Toggle Bar -->
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800">Show Proposal Solution Plan & Growth Trajectory?</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">Toggle on to display the interactive product selector, proposal sheet, and capital accumulation chart.</p>
+                    </div>
+                    <div class="inline-flex rounded-lg border border-slate-300 p-0.5 bg-white shadow-sm shrink-0">
+                        <button type="button" onclick="setProposalToggle(true)" id="btnPropYes" class="px-3.5 py-1.5 text-xs font-bold rounded-md transition-all bg-brand-600 text-white shadow">ON</button>
+                        <button type="button" onclick="setProposalToggle(false)" id="btnPropNo" class="px-3.5 py-1.5 text-xs font-bold rounded-md transition-all text-slate-600">OFF</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Proposal & Growth Container (Toggable) -->
+            <div id="proposalSectionsWrapper" class="space-y-8">
+            <!-- Product Proposal Solution Selector -->
+            <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <div class="w-8 h-8 bg-brand-100 rounded-xl flex items-center justify-center text-brand-600 font-bold text-sm">2</div>
+                    <h2 class="text-lg font-bold text-slateCustom-900">Select Proposal Solution Plan</h2>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500 mb-1.5">Recommended Policy Package</label>
+                    <select id="selectedProduct" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 text-sm font-bold text-slateCustom-800 outline-none cursor-pointer" onchange="updateProductDetails()">
+                        <option value="lifetimeincome">PRULifetime Income (Lifelong Guaranteed Payouts)</option>
+                        <option value="prusteady" selected>PRUSteady Income 10 (20-Year Guaranteed Endowment)</option>
+                        <option value="eliteprotector">PRULink Elite Protector (High Protection + Investment)</option>
+                        <option value="prumillion">PRUMillion Protect (Short 2-Year Commitment)</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Dynamic Interactive Proposal Sheet -->
+            <section class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <!-- Proposal Sheet Banner -->
+                <div class="bg-slateCustom-900 text-white p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span id="prodBadge" class="bg-brand-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">20-Year Guaranteed Endowment</span>
+                            <span class="text-xs text-slate-400 font-medium">Official Plan Proposal</span>
+                        </div>
+                        <h2 id="prodTitle" class="text-2xl sm:text-3xl font-black mt-2 text-white">PRUSteady Income 10</h2>
+                    </div>
+                    <div class="text-left sm:text-right bg-slate-800/80 p-3.5 rounded-2xl border border-slate-700">
+                        <span class="text-xs text-slate-400 block font-semibold">Prepared For:</span>
+                        <span id="displayClientNameProposal" class="text-sm font-bold text-white">Juan Dela Cruz</span>
+                    </div>
+                </div>
+
+                <div class="p-6 sm:p-8 space-y-6">
+                    <!-- Scenario Objective -->
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex gap-3 items-start">
+                        <div class="p-2 bg-brand-100 text-brand-600 rounded-xl mt-0.5 shrink-0">
+                            <i class="fa-solid fa-circle-info text-base"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">Target Profile & Scenario Objective</h4>
+                            <p id="prodScenario" class="text-sm text-slate-700 mt-1 leading-relaxed font-medium">Tailored for clients anticipating milestone expenses or financial goals backed by a 20-year guaranteed endowment structure.</p>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Payment Options (Elite Protector) -->
+                    <div id="eliteOptionsContainer" class="hidden space-y-6">
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">Select Plan Payment Option Variant</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" id="eliteTermButtons">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Projected Withdrawal Fund Matrix -->
+                        <div class="bg-brand-50/60 p-5 rounded-2xl border border-brand-200 space-y-4">
+                            <div class="flex justify-between items-center border-b border-brand-200/80 pb-3">
+                                <div>
+                                    <span class="text-xs text-slate-500 font-bold uppercase">Plan Variant</span>
+                                    <h4 id="eliteSelectedPlanTitle" class="text-xl font-black text-brand-600">ELITE 10</h4>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs text-slate-500 font-bold uppercase">Monthly Premium</span>
+                                    <h4 id="eliteMonthly" class="text-xl font-black text-slateCustom-900">PHP 9,500 MONTHLY</h4>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h5 class="text-xs font-extrabold uppercase tracking-wider text-brand-600 mb-3">Projected Withdrawal Fund Growth Matrix</h5>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center" id="eliteFundGrid">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Standard Premium Overview Header -->
+                    <div id="standardPremiumContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-1">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Payment Term & Premium</span>
+                            <p id="prodTerm" class="text-lg font-bold text-slateCustom-900">-</p>
+                        </div>
+                        <div class="bg-brand-50 p-5 rounded-2xl border border-brand-100 space-y-1">
+                            <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Guaranteed Base Benefit / Sum Assured</span>
+                            <p id="prodSumAssured" class="text-lg font-bold text-brand-700">-</p>
+                        </div>
+                    </div>
+
+                    <!-- PRULifetime & PRUSteady Dynamic Schedule Section -->
+                    <div id="pruLifetimeDynamicSection" class="hidden space-y-6 pt-2">
+                        <!-- Premium Breakdown Bar -->
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-center bg-slateCustom-900 text-white p-4 rounded-2xl">
+                            <div class="p-2 border-r border-slate-800 last:border-0">
+                                <span class="block text-[11px] text-slate-400 font-bold uppercase">Sum Assured</span>
+                                <span id="pruSAVal" class="text-base font-extrabold text-white">₱0</span>
+                            </div>
+                            <div class="p-2 border-r border-slate-800 last:border-0">
+                                <span class="block text-[11px] text-slate-400 font-bold uppercase">Annual Premium</span>
+                                <span id="pruAnnualVal" class="text-base font-extrabold text-brand-400">₱0</span>
+                            </div>
+                            <div class="p-2 border-r border-slate-800 last:border-0">
+                                <span class="block text-[11px] text-slate-400 font-bold uppercase">Monthly Premium</span>
+                                <span id="pruMonthlyVal" class="text-base font-extrabold text-white">₱0</span>
+                            </div>
+                            <div class="p-2">
+                                <span class="block text-[11px] text-slate-400 font-bold uppercase">10-Yr Total Paid</span>
+                                <span id="pru10YrTotalVal" class="text-base font-extrabold text-emerald-400">₱0</span>
+                            </div>
+                        </div>
+
+                        <!-- Guaranteed Payout Callout Banner -->
+                        <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 flex flex-col sm:flex-row justify-between items-center gap-2">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl">
+                                    <i class="fa-solid fa-hand-holding-dollar text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 id="pruPayoutTitle" class="text-xs font-bold text-emerald-900 uppercase tracking-wider">Guaranteed Cash Payout</h4>
+                                    <p id="pruPayoutDesc" class="text-sm font-black text-emerald-700"></p>
+                                </div>
+                            </div>
+                            <span id="pruBadgeLabel" class="bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase">Endowment</span>
+                        </div>
+
+                        <!-- Milestone Schedule Table -->
+                        <div class="space-y-3">
+                            <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Milestone Growth & Benefit Schedule</h3>
+                            <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                                <table class="w-full text-left text-xs text-slate-700">
+                                    <thead id="pruTableHead" class="bg-slate-100 text-slate-800 font-bold uppercase border-b border-slate-200">
+                                        <!-- Dynamically populated -->
+                                    </thead>
+                                    <tbody id="pruProjectionTableBody" class="divide-y divide-slate-100 font-medium">
+                                        <!-- Dynamically populated -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Policy Coverages & Riders -->
+                    <div class="space-y-3">
+                        <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider border-b pb-2">Life Insurance Coverages & Benefits</h3>
+                        <div id="prodBenefitsList" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-700">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Milestone Timeline -->
+                    <div class="space-y-3 pt-2">
+                        <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider border-b pb-2">Milestone Timeline & Payout Roadmap</h3>
+                        <div id="prodTimeline" class="space-y-3">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Projected Capital Accumulation Line Chart -->
+            <section class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-slateCustom-900">Projected Capital Accumulation Trajectory</h3>
+                    <span class="text-xs text-slate-400 font-medium">Based on regular investment return benchmark</span>
+                </div>
+                <div class="relative h-64 sm:h-72">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </section>
+            </div>
+        </div>
+
+        <!-- STEP 6: PORTFOLIO SUMMARY & EXECUTIVE PRESENTATION REPORT -->
+        <div id="tab-summary" class="tab-content space-y-6">
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-10 print-card space-y-8">
+                
+                <!-- Report Header Branding -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-brand-600 pb-6 gap-4">
+                    <div>
+                        <span class="text-xs font-extrabold text-brand-600 tracking-wider uppercase">Executive Advisory Summary Report</span>
+                        <h2 class="text-2xl sm:text-3xl font-black text-slateCustom-900 mt-1" id="summaryClientHeader">Juan Dela Cruz</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Financial Advisor: <span id="summaryAdvisorHeader" class="font-bold text-slate-800">Maria Santos, RFP</span></p>
+                    </div>
+                    <div class="mt-2 sm:mt-0 text-left sm:text-right">
+                        <p class="text-xs text-slate-400 block font-semibold">Report Generation Date</p>
+                        <p id="currentDate" class="text-sm font-bold text-slate-800"></p>
+                    </div>
+                </div>
+
+                <!-- Executive Snapshot Cards Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <span class="text-[11px] text-slate-500 font-bold uppercase block mb-1">Monthly Surplus</span>
+                        <span id="sumSurplus" class="text-lg font-black text-slateCustom-900">₱0.00</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200" id="printBizGapBox">
+                        <span class="text-[11px] text-slate-500 font-bold uppercase block mb-1">Biz Contingency Gap</span>
+                        <span id="sumBizContingencyGap" class="text-lg font-black text-brand-600">₱0.00</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <span class="text-[11px] text-slate-500 font-bold uppercase block mb-1">Protection Gap (HLV)</span>
+                        <span id="sumProtectionGap" class="text-lg font-black text-brand-600">₱0.00</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200" id="printEduTargetBox">
+                        <span class="text-[11px] text-slate-500 font-bold uppercase block mb-1">College Fund Goal</span>
+                        <span id="sumEduTarget" class="text-lg font-black text-slateCustom-900">₱0.00</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <span class="text-[11px] text-slate-500 font-bold uppercase block mb-1">Retirement Target</span>
+                        <span id="sumRetTarget" class="text-lg font-black text-emerald-600">₱0.00</span>
+                    </div>
+                </div>
+
+                <!-- Comprehensive Print Sections (Displayed specifically on print export) -->
+                <div class="print-only space-y-4 pt-2">
+                    <div class="print-section-block space-y-1.5">
+                        <h3 class="font-black text-xs text-slateCustom-900 uppercase tracking-wider border-b border-slate-200 pb-1">Cash Flow & Money Jars Breakdown</h3>
+                        <div class="text-[11px] space-y-1" id="printCashflowSummaryText">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div id="printBusinessSection" class="print-section-block space-y-1.5">
+                        <h3 class="font-black text-xs text-slateCustom-900 uppercase tracking-wider border-b border-slate-200 pb-1">Business Contingency & Funding Summary</h3>
+                        <div class="text-[11px] space-y-1" id="printBusinessSummaryText">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div id="printEduSection" class="print-section-block space-y-1.5">
+                        <h3 class="font-black text-xs text-slateCustom-900 uppercase tracking-wider border-b border-slate-200 pb-1">Children's Education Fund Summary</h3>
+                        <div class="text-[11px] space-y-1" id="printEduSummaryText">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="print-section-block space-y-1.5">
+                        <h3 class="font-black text-xs text-slateCustom-900 uppercase tracking-wider border-b border-slate-200 pb-1">Retirement & Income Protection Summary</h3>
+                        <div class="text-[11px] space-y-1" id="printRetirementSummaryText">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Create Tailored Solution Recommendation Link Boxes -->
+                <div class="space-y-4 no-print border-t border-slate-100 pt-6">
+                    <h3 class="font-bold text-slateCustom-900 text-base flex items-center gap-2">
+                        <i class="fa-solid fa-link text-brand-600"></i> Create Tailored Solution Recommendation
+                    </h3>
+                    
+                    <!-- Link Box 1 -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row gap-3 items-center">
+                        <div class="relative flex-grow w-full">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-globe text-sm"></i>
+                            </span>
+                            <input type="url" id="tailoredSolutionLinkInput" placeholder="Enter recommendation URL or proposal link (https://...)" class="w-full pl-10 pr-3.5 py-2.5 border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                        </div>
+                        <div class="flex space-x-2 w-full sm:w-auto shrink-0">
+                            <button onclick="saveTailoredLink()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>Save</span>
+                            </button>
+                            <button onclick="openTailoredLink()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition flex items-center justify-center gap-2">
+                                <span>Go</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Link Box 2 (Auto-Save with Go Button) -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row gap-3 items-center">
+                        <div class="relative flex-grow w-full">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-globe text-sm"></i>
+                            </span>
+                            <input type="url" id="tailoredSolutionLinkInput2" oninput="autoSaveSecondaryLink(this.value)" placeholder="Enter secondary recommendation URL (auto-saves as you type)..." class="w-full pl-10 pr-16 py-2.5 border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                            <span id="autoSaveIndicator" class="absolute inset-y-0 right-3 flex items-center text-[10px] font-bold text-emerald-600 hidden">Saved</span>
+                        </div>
+                        <div class="flex space-x-2 w-full sm:w-auto shrink-0">
+                            <button onclick="openSecondaryLink()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition flex items-center justify-center gap-2">
+                                <span>Go</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-400">Save your custom external recommendation link or proposal builder sheet to instantly access it from the summary report.</p>
+                </div>
+
+                <!-- Budget Allocation Chart & Notes -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center pt-2">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col items-center justify-center" style="height: 250px;">
+                        <h4 class="text-xs font-bold uppercase text-slate-500 mb-2 w-full">Portfolio Budget Share Allocation</h4>
+                        <div class="relative w-full h-full flex items-center justify-center">
+                            <canvas id="allocationChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Advisor Remarks & Client Sign-off -->
+                    <div class="space-y-4">
+                        <h4 class="text-xs font-bold uppercase text-slate-500">Advisor Notes & Presentation Recommendations</h4>
+                        <textarea id="advisorNotes" rows="4" class="w-full p-3 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Enter advisor notes, business risk assessment details, timeline next steps..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Pinalawak at Inayos na Signature Placement para sa Print/PDF Export -->
+                <div class="pt-12 mt-6 border-t border-slate-200 print-only" style="page-break-inside: avoid;">
+                    <div class="grid grid-cols-2 gap-12 pt-6">
+                        <div class="text-center">
+                            <div class="border-b border-slate-400 pb-12 mb-2">
+                                <p class="font-black text-sm text-slate-900" id="clientSignName">Juan Dela Cruz</p>
+                            </div>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Client Acknowledgment & Signature</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="border-b border-slate-400 pb-12 mb-2">
+                                <p class="font-black text-sm text-slate-900" id="advisorSignName">Maria Santos, RFP</p>
+                            </div>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Financial Consultant Signature</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- App Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 no-print text-center text-xs text-slate-500 space-y-1">
+        <p>© <span id="yearDisplay"></span> Financial Advisory & Presentation Suite &bull; All data saved locally.</p>
+        <p class="font-semibold text-slate-600">Original property of Mark Isaac Ison</p>
+    </footer>
+
+    <!-- Master Application Script -->
+    <script>
+        // Default Application Master State
+        let suiteState = {
+            clientName: "Juan Dela Cruz",
+            clientBirthday: "1994-01-01",
+            clientAge: 32,
+            retirementAge: 60,
+            hasBusiness: false,
+            hasChildren: false,
+            showProposal: false,
+            dependents: 2,
+            advisorName: "",
+            debts: 450000,
+            assets: 300000,
+            existingInsurance: 1000000,
+            priorities: { ef: 3, life: 3, edu: 2, ret: 3 },
+            
+            // Business Contingency State
+            business: {
+                monthlyOverhead: 150000,
+                runwayMonths: 6,
+                currentCash: 300000,
+                valuation: 5000000,
+                loans: 1200000,
+                keyPersonCost: 800000
+            },
+
+            // Money Jar State
+            incomes: { a: 85000, b: 0, c: 0 },
+            activeItemLimit: 5,
+            idealPercentages: [50, 20, 20, 10, 0],
+            jars: [
+                {
+                    id: 0,
+                    name: "Non-Negotiable (Needs & Bills)",
+                    subtitle: "Housing, Utilities, Groceries, Loan Repayments",
+                    badgeColor: "bg-red-100 text-red-800",
+                    items: [
+                        { name: "Rent / Mortgage", amount: 20000 },
+                        { name: "Utilities (Electric, Water, Internet)", amount: 6000 },
+                        { name: "Groceries & Food", amount: 10000 },
+                        { name: "Transportation & Fuel", amount: 4000 },
+                        { name: "Debt Amortization", amount: 2500 }
+                    ]
+                },
+                {
+                    id: 1,
+                    name: "Negotiable (Wants & Lifestyle)",
+                    subtitle: "Dining Out, Entertainment, Shopping",
+                    badgeColor: "bg-amber-100 text-amber-800",
+                    items: [
+                        { name: "Dining Out & Leisure", amount: 6000 },
+                        { name: "Streaming & Subscriptions", amount: 1500 },
+                        { name: "Shopping / Hobbies", amount: 4500 },
+                        { name: "", amount: 0 },
+                        { name: "", amount: 0 }
+                    ]
+                },
+                {
+                    id: 2,
+                    name: "EF / Savings / Investments",
+                    subtitle: "Emergency Fund, Stocks, Mutual Funds",
+                    badgeColor: "bg-emerald-100 text-emerald-800",
+                    items: [
+                        { name: "Emergency Reserve Fund", amount: 8000 },
+                        { name: "Mutual Funds / Stocks", amount: 5000 },
+                        { name: "", amount: 0 },
+                        { name: "", amount: 0 },
+                        { name: "", amount: 0 }
+                    ]
+                },
+                {
+                    id: 3,
+                    name: "Insurance (Protection)",
+                    subtitle: "Health Insurance, HMO, Life Policy",
+                    badgeColor: "bg-blue-100 text-blue-800",
+                    items: [
+                        { name: "Health / HMO / Life Policy", amount: 5000 },
+                        { name: "", amount: 0 },
+                        { name: "", amount: 0 },
+                        { name: "", amount: 0 },
+                        { name: "", amount: 0 }
+                    ]
+                },
+                {
+                    id: 4,
+                    name: "Charity & Tithes",
+                    subtitle: "Church Tithes & Donations",
+                    badgeColor: "bg-purple-100 text-purple-800",
+                    items: [
+                        { name: "Church / Outreach Tithes", amount: 2000 },
+                        { name: "", amount: 0 },
+                        { name: "", amount: 0 },
+                        { name: "", amount: 0 },
+                        { name: "", amount: 0 }
+                    ]
+                }
+            ],
+
+            // Multi-Children State (Default 1 Child)
+            children: [
+                { name: "Child 1", age: 3, collegeAge: 18, tuition: 180000, duration: 4, inflation: 7.0 }
+            ],
+
+            // Retirement State
+            desiredMonthly: 20000,
+            inflationRate: 4.0,
+            investmentReturn: 8.0,
+            selectedProduct: 'prusteady',
+            selectedEliteIndex: 1,
+
+            // Tailored Solution Links
+            tailoredLink: "",
+            tailoredLink2: ""
+        };
+
+        // Register DataLabels plugin globally
+        if (typeof ChartDataLabels !== 'undefined') {
+            Chart.register(ChartDataLabels);
+        }
+
+        let activeJarIndex = 0;
+        let jarChartInstance = null;
+        let lifeChartInstance = null;
+        let eduChartInstance = null;
+        let retirementGrowthChartInstance = null;
+        let allocationChartInstance = null;
+
+        // Elite Protector Variant Presets
+        const eliteOptions = [
+            {
+                name: "ELITE 15",
+                years: "15 Years",
+                monthly: "PHP 7,500 MONTHLY",
+                coverages: {
+                    death: "3,000,000 PHP",
+                    accidental: "1,000,000 PHP",
+                    disability: "1,500,000 PHP",
+                    criticalIllness: "1,500,000 PHP",
+                    hospitalization: "3,000 PHP per DAY"
+                },
+                projectedFunds: {
+                    yr5: "255,816 PHP",
+                    yr10: "863,115 PHP",
+                    yr15: "2,006,485 PHP",
+                    yr20: "3,066,068 PHP"
+                }
+            },
+            {
+                name: "ELITE 10",
+                years: "10 Years",
+                monthly: "PHP 9,500 MONTHLY",
+                coverages: {
+                    death: "3,000,000 PHP",
+                    accidental: "1,000,000 PHP",
+                    disability: "1,500,000 PHP",
+                    criticalIllness: "1,500,000 PHP",
+                    hospitalization: "3,000 PHP per DAY"
+                },
+                projectedFunds: {
+                    yr5: "454,840 PHP",
+                    yr10: "1,531,322 PHP",
+                    yr15: "2,329,116 PHP",
+                    yr20: "3,550,290 PHP"
+                }
+            },
+            {
+                name: "ELITE 5",
+                years: "5 Years",
+                monthly: "PHP 17,500 MONTHLY",
+                coverages: {
+                    death: "3,000,000 PHP",
+                    accidental: "1,000,000 PHP",
+                    disability: "1,500,000 PHP",
+                    criticalIllness: "1,500,000 PHP",
+                    hospitalization: "3,000 PHP per DAY"
+                },
+                projectedFunds: {
+                    yr5: "1,126,574 PHP",
+                    yr10: "1,719,639 PHP",
+                    yr15: "2,632,394 PHP",
+                    yr20: "4,038,771 PHP"
+                }
+            }
+        ];
+
+        // Product Descriptions Map
+        const productData = {
+            eliteprotector: {
+                badge: "Investment-Linked",
+                title: "PRULink Elite Protector",
+                scenario: "Designed for clients seeking comprehensive life insurance coverages coupled with flexible payment terms and aggressive projected fund growth.",
+                isElite: true
+            },
+            lifetimeincome: {
+                badge: "Lifelong Guaranteed Cash",
+                title: "PRULifetime Income",
+                scenario: "Ideal for clients seeking reliable lifelong retirement income, independence, and dignity without relying on dependents.",
+                isElite: false
+            },
+            prusteady: {
+                badge: "20-Year Guaranteed Endowment",
+                title: "PRUSteady Income 10",
+                scenario: "Tailored for clients anticipating milestone expenses such as children's college education or a 20-year financial goal with guaranteed endowment returns.",
+                isElite: false
+            },
+            prumillion: {
+                badge: "Short Commitment Plan",
+                title: "PRUMillion Protect",
+                scenario: "Perfect for business owners or investors wanting fast, simple protection for business liabilities with a short 2-year payment commitment.",
+                isElite: false,
+                term: "2-Year Short Pay (₱500,000 annual / ₱1,000,000 total commitment)",
+                sumAssured: "₱2,500,000 Base Life Coverage",
+                benefits: [
+                    "₱2,500,000 Base Life Insurance Protection",
+                    "₱1,000,000 Accelerated Total & Permanent Disability (TPD) until Age 70",
+                    "₱1,000,000 Accidental Death & Disablement (ADD) until Age 73",
+                    "2% Loyalty Bonus fund credit starting Year 10 (crediting every 5 years)",
+                    "105% Maturity Fund Value Benefit at Age 85"
+                ],
+                timeline: [
+                    { phase: "Year 1 - 2 (Pay Period)", desc: "Pay ₱500,000/yr for 2 years. Fully paid after Year 2 with immediate ₱2.5M life cover." },
+                    { phase: "Year 10 Onwards", desc: "Receive 2% loyalty bonus fund credits every 5 years to boost overall investment value." },
+                    { phase: "Age 85 (Maturity)", desc: "Receive 105% of accumulated fund value as a final retirement payout." }
+                ]
+            }
+        };
+
+        // App Initialization
+        window.onload = function() {
+            document.getElementById('yearDisplay').innerText = new Date().getFullYear();
+            const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('currentDate').innerText = dateStr;
+
+            loadSavedState();
+            calculateAgeFromBirthday();
+            updateProfileMaster();
+            calculateBusinessContingency();
+            calculateMoneyJarTotals();
+            calculateLifeNeeds();
+            calculateEduNeeds();
+            calculateRetirementMaster();
+            renderRecommendationsTable();
+        };
+
+        // Save & Load Functions
+        function loadSavedState() {
+            const saved = localStorage.getItem('pruFinancialAdvisorySuiteData');
+            if (saved) {
+                try {
+                    suiteState = JSON.parse(saved);
+                } catch (e) {
+                    console.error("Failed to parse local state", e);
+                }
+            } else {
+                suiteState.hasBusiness = false;
+                suiteState.hasChildren = false;
+                suiteState.showProposal = false;
+            }
+
+            // Sync Inputs
+            document.getElementById('clientName').value = suiteState.clientName || "";
+            if (suiteState.clientBirthday) {
+                document.getElementById('clientBirthday').value = suiteState.clientBirthday;
+            }
+            document.getElementById('retirementAge').value = suiteState.retirementAge || 60;
+            document.getElementById('dependents').value = suiteState.dependents || 0;
+            document.getElementById('advisorName').value = suiteState.advisorName || "";
+            document.getElementById('totalDebts').value = suiteState.debts || 0;
+            document.getElementById('currentAssets').value = suiteState.assets || 0;
+            document.getElementById('existingInsurance').value = suiteState.existingInsurance || 0;
+
+            if (suiteState.business) {
+                document.getElementById('bizMonthlyOverhead').value = suiteState.business.monthlyOverhead || 150000;
+                document.getElementById('bizRunwayMonths').value = suiteState.business.runwayMonths || 6;
+                document.getElementById('bizCurrentCash').value = suiteState.business.currentCash || 300000;
+                document.getElementById('bizValuation').value = suiteState.business.valuation || 5000000;
+                document.getElementById('bizLoans').value = suiteState.business.loans || 1200000;
+                document.getElementById('bizKeyPersonCost').value = suiteState.business.keyPersonCost || 800000;
+            }
+
+            document.getElementById('income-a').value = suiteState.incomes.a || 0;
+            document.getElementById('income-b').value = suiteState.incomes.b || 0;
+            document.getElementById('income-c').value = suiteState.incomes.c || 0;
+
+            if (!suiteState.children || suiteState.children.length === 0) {
+                suiteState.children = [
+                    { name: "Child 1", age: 3, collegeAge: 18, tuition: 180000, duration: 4, inflation: 7.0 }
+                ];
+            }
+            document.getElementById('numChildrenSelect').value = suiteState.children.length;
+
+            document.getElementById('desiredMonthly').value = suiteState.desiredMonthly || 20000;
+            document.getElementById('inflationRate').value = suiteState.inflationRate || 4.0;
+            document.getElementById('investmentReturn').value = suiteState.investmentReturn || 8.0;
+            document.getElementById('selectedProduct').value = suiteState.selectedProduct || 'prusteady';
+
+            const linkInput = document.getElementById('tailoredSolutionLinkInput');
+            if (linkInput) linkInput.value = suiteState.tailoredLink || "";
+
+            const linkInput2 = document.getElementById('tailoredSolutionLinkInput2');
+            if (linkInput2) linkInput2.value = suiteState.tailoredLink2 || "";
+
+            setBusinessToggle(suiteState.hasBusiness === true, false);
+            setChildrenToggle(suiteState.hasChildren === true, false);
+            setProposalToggle(suiteState.showProposal === true, false);
+        }
+
+        // Business, Children and Proposal Toggle Control Handlers
+        function setBusinessToggle(hasBiz, triggerSave = true) {
+            suiteState.hasBusiness = hasBiz;
+            const btnYes = document.getElementById('btnBizYes');
+            const btnNo = document.getElementById('btnBizNo');
+            const navBiz = document.getElementById('nav-tab-business');
+
+            if (hasBiz) {
+                btnYes.className = "px-3 py-1 text-xs font-bold rounded-md transition-all bg-brand-600 text-white shadow";
+                btnNo.className = "px-3 py-1 text-xs font-bold rounded-md transition-all text-slate-600";
+                navBiz.classList.remove('hidden');
+            } else {
+                btnNo.className = "px-3 py-1 text-xs font-bold rounded-md transition-all bg-brand-600 text-white shadow";
+                btnYes.className = "px-3 py-1 text-xs font-bold rounded-md transition-all text-slate-600";
+                navBiz.classList.add('hidden');
+            }
+
+            updateDynamicStepNumbers();
+            if (triggerSave) saveState();
+        }
+
+        function setChildrenToggle(hasChildren, triggerSave = true) {
+            suiteState.hasChildren = hasChildren;
+            const btnYes = document.getElementById('btnChildYes');
+            const btnNo = document.getElementById('btnChildNo');
+            const navEdu = document.getElementById('nav-tab-edu');
+
+            if (hasChildren) {
+                if (btnYes) btnYes.className = "px-3 py-1 text-xs font-bold rounded-md transition-all bg-brand-600 text-white shadow";
+                if (btnNo) btnNo.className = "px-3 py-1 text-xs font-bold rounded-md transition-all text-slate-600";
+                if (navEdu) navEdu.classList.remove('hidden');
+            } else {
+                if (btnNo) btnNo.className = "px-3 py-1 text-xs font-bold rounded-md transition-all bg-brand-600 text-white shadow";
+                if (btnYes) btnYes.className = "px-3 py-1 text-xs font-bold rounded-md transition-all text-slate-600";
+                if (navEdu) navEdu.classList.add('hidden');
+            }
+
+            updateDynamicStepNumbers();
+            if (triggerSave) saveState();
+        }
+
+        function setProposalToggle(showProp, triggerSave = true) {
+            suiteState.showProposal = showProp;
+            const btnYes = document.getElementById('btnPropYes');
+            const btnNo = document.getElementById('btnPropNo');
+            const wrapper = document.getElementById('proposalSectionsWrapper');
+
+            if (showProp) {
+                btnYes.className = "px-3.5 py-1.5 text-xs font-bold rounded-md transition-all bg-brand-600 text-white shadow";
+                btnNo.className = "px-3.5 py-1.5 text-xs font-bold rounded-md transition-all text-slate-600";
+                if (wrapper) wrapper.classList.remove('hidden');
+            } else {
+                btnNo.className = "px-3.5 py-1.5 text-xs font-bold rounded-md transition-all bg-brand-600 text-white shadow";
+                btnYes.className = "px-3.5 py-1.5 text-xs font-bold rounded-md transition-all text-slate-600";
+                if (wrapper) wrapper.classList.add('hidden');
+            }
+
+            if (triggerSave) saveState();
+        }
+
+        function updateDynamicStepNumbers() {
+            const visibleNavs = Array.from(document.querySelectorAll('#stepNav button')).filter(btn => !btn.classList.contains('hidden'));
+            visibleNavs.forEach((btn, idx) => {
+                const numSpan = btn.querySelector('.step-num');
+                if (numSpan) numSpan.innerText = idx + 1;
+            });
+        }
+
+        function goToNextStepFromProfile() {
+            if (suiteState.hasBusiness) {
+                switchTab('tab-business');
+            } else {
+                switchTab('tab-life');
+            }
+        }
+
+        // Save & Load Functions
+        function saveState() {
+            localStorage.setItem('pruFinancialAdvisorySuiteData', JSON.stringify(suiteState));
+        }
+
+        function resetAllSuiteData() {
+            if (confirm("Reset all client inputs and money jar allocations to factory defaults?")) {
+                localStorage.removeItem('pruFinancialAdvisorySuiteData');
+                location.reload();
+            }
+        }
+
+        // Navigation Switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-600', 'text-white', 'shadow-md');
+                btn.classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-800');
+            });
+
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-slate-800');
+                activeBtn.classList.add('bg-brand-600', 'text-white', 'shadow-md');
+            }
+
+            if (tabId === 'tab-business') calculateBusinessContingency();
+            if (tabId === 'tab-life') calculateLifeNeeds();
+            if (tabId === 'tab-edu') calculateEduNeeds();
+            if (tabId === 'tab-retirement') calculateRetirementMaster();
+            if (tabId === 'tab-summary') updateSummaryPage();
+        }
+
+        // Automated PDF export / preparation to prevent clicking tabs manually
+        function prepareAndPrintPDF() {
+            updateProfileMaster();
+            calculateBusinessContingency();
+            calculateMoneyJarTotals();
+            calculateLifeNeeds();
+            calculateEduNeeds();
+            calculateRetirementMaster();
+            updateSummaryPage();
+            
+            setTimeout(() => {
+                window.print();
+            }, 300);
+        }
+
+        // Helper Formatters
+        function formatPHP(val) {
+            return '₱' + Math.round(val || 0).toLocaleString('en-US');
+        }
+
+        function formatPHPDecimal(val) {
+            return '₱' + (val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Birthday & Age Calculation Handler
+        function calculateAgeFromBirthday() {
+            const bdayInput = document.getElementById('clientBirthday').value;
+            if (!bdayInput) return;
+            
+            const birthDate = new Date(bdayInput);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            
+            if (!isNaN(age) && age >= 0) {
+                document.getElementById('clientAge').value = age;
+                suiteState.clientBirthday = bdayInput;
+                updateProfileMaster();
+            }
+        }
+
+        // Master Profile Updater
+        function updateProfileMaster() {
+            suiteState.clientName = document.getElementById('clientName').value || "Juan Dela Cruz";
+            const bdayEl = document.getElementById('clientBirthday');
+            if (bdayEl) suiteState.clientBirthday = bdayEl.value || "1994-01-01";
+            suiteState.clientAge = parseInt(document.getElementById('clientAge').value) || 30;
+            suiteState.retirementAge = parseInt(document.getElementById('retirementAge').value) || 60;
+            suiteState.dependents = parseInt(document.getElementById('dependents').value) || 0;
+            suiteState.advisorName = document.getElementById('advisorName').value || "";
+            suiteState.debts = parseFloat(document.getElementById('totalDebts').value) || 0;
+            suiteState.assets = parseFloat(document.getElementById('currentAssets').value) || 0;
+            suiteState.existingInsurance = parseFloat(document.getElementById('existingInsurance').value) || 0;
+
+            // Sync Header & Summaries
+            document.getElementById('headerClientName').innerText = suiteState.clientName;
+            document.getElementById('summaryClientHeader').innerText = suiteState.clientName;
+            document.getElementById('summaryAdvisorHeader').innerText = suiteState.advisorName || "(Advisor Name Blank)";
+            document.getElementById('displayClientNameProposal').innerText = suiteState.clientName;
+            document.getElementById('clientSignName').innerText = suiteState.clientName;
+            document.getElementById('advisorSignName').innerText = suiteState.advisorName || "Financial Advisor";
+
+            // Priority Text Labels
+            document.getElementById('priorityEFVal').innerText = getPriorityText(document.getElementById('priorityEF').value);
+            document.getElementById('priorityLifeVal').innerText = getPriorityText(document.getElementById('priorityLife').value);
+            document.getElementById('priorityEduVal').innerText = getPriorityText(document.getElementById('priorityEdu').value);
+            document.getElementById('priorityRetVal').innerText = getPriorityText(document.getElementById('priorityRet').value);
+
+            saveState();
+        }
+
+        function getPriorityText(val) {
+            if (val == 3) return "High";
+            if (val == 2) return "Medium";
+            return "Low";
+        }
+
+        // BUSINESS CONTINGENCY & FUNDING LOGIC
+        function calculateBusinessContingency() {
+            const overhead = parseFloat(document.getElementById('bizMonthlyOverhead').value) || 0;
+            const runway = parseInt(document.getElementById('bizRunwayMonths').value) || 6;
+            const cash = parseFloat(document.getElementById('bizCurrentCash').value) || 0;
+            const valuation = parseFloat(document.getElementById('bizValuation').value) || 0;
+            const loans = parseFloat(document.getElementById('bizLoans').value) || 0;
+            const keyPerson = parseFloat(document.getElementById('bizKeyPersonCost').value) || 0;
+
+            suiteState.business = {
+                monthlyOverhead: overhead,
+                runwayMonths: runway,
+                currentCash: cash,
+                valuation: valuation,
+                loans: loans,
+                keyPersonCost: keyPerson
+            };
+
+            const targetEF = overhead * runway;
+            const efGap = Math.max(0, targetEF - cash);
+            const totalProtectionNeed = loans + keyPerson + (valuation * 0.5);
+
+            document.getElementById('bizTargetEFDisplay').innerText = formatPHP(targetEF);
+            document.getElementById('bizCurrentCashDisplay').innerText = formatPHP(cash);
+            document.getElementById('bizEFGapDisplay').innerText = formatPHP(efGap);
+            document.getElementById('bizTotalProtectionNeed').innerText = formatPHP(totalProtectionNeed);
+
+            saveState();
+        }
+
+        // MONEY JAR SYSTEM LOGIC
+        function calculateMoneyJarTotals() {
+            const a = parseFloat(document.getElementById('income-a').value) || 0;
+            const b = parseFloat(document.getElementById('income-b').value) || 0;
+            const c = parseFloat(document.getElementById('income-c').value) || 0;
+            suiteState.incomes = { a, b, c };
+
+            const totalIncome = a + b + c;
+            document.getElementById('summary-total-income').innerText = formatPHPDecimal(totalIncome);
+
+            let totalAllocated = 0;
+            let jarSubtotals = suiteState.jars.map(jar => {
+                const sub = jar.items.reduce((acc, item) => acc + (parseFloat(item.amount) || 0), 0);
+                totalAllocated += sub;
+                return sub;
+            });
+
+            document.getElementById('summary-total-allocated').innerText = formatPHPDecimal(totalAllocated);
+
+            const netFlow = totalIncome - totalAllocated;
+            const netFlowEl = document.getElementById('summary-net-flow');
+            const netFlowIconContainer = document.getElementById('net-flow-icon-container');
+
+            netFlowEl.innerText = formatPHPDecimal(netFlow);
+            
+            // Dynamic Net Flow Color Styling (0 = Black, Negative = Red, Greater than 0 = Green)
+            if (netFlow === 0) {
+                netFlowEl.className = "text-xl sm:text-2xl font-black text-slateCustom-900 mt-1";
+                netFlowIconContainer.className = "w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700";
+                netFlowIconContainer.innerHTML = '<i class="fa-solid fa-scale-balanced text-lg"></i>';
+            } else if (netFlow < 0) {
+                netFlowEl.className = "text-xl sm:text-2xl font-black text-brand-600 mt-1";
+                netFlowIconContainer.className = "w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600";
+                netFlowIconContainer.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-lg"></i>';
+            } else {
+                netFlowEl.className = "text-xl sm:text-2xl font-black text-emerald-600 mt-1";
+                netFlowIconContainer.className = "w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600";
+                netFlowIconContainer.innerHTML = '<i class="fa-solid fa-scale-balanced text-lg"></i>';
+            }
+
+            renderJarTabs();
+            renderActiveJarContent(jarSubtotals, totalIncome);
+            renderBreakdownTable(jarSubtotals, totalIncome);
+            renderAnalyticsBars(jarSubtotals, totalIncome);
+            renderAdvisorFeedback(jarSubtotals, totalIncome);
+            updateJarChart(jarSubtotals);
+            saveState();
+        }
+
+        function setItemLimit(limit) {
+            suiteState.activeItemLimit = limit;
+            suiteState.jars.forEach(jar => {
+                while (jar.items.length < limit) {
+                    jar.items.push({ name: "", amount: 0 });
+                }
+            });
+
+            [5, 10, 15, 30].forEach(l => {
+                const btn = document.getElementById(`limit-btn-${l}`);
+                if (!btn) return;
+                btn.className = l === limit ? "px-2.5 py-1 text-xs font-bold rounded-lg transition bg-brand-600 text-white" : "px-2.5 py-1 text-xs font-bold rounded-lg transition bg-white text-slate-700 border";
+            });
+
+            calculateMoneyJarTotals();
+        }
+
+        function renderJarTabs() {
+            const container = document.getElementById('jar-tabs');
+            container.innerHTML = '';
+
+            suiteState.jars.forEach((jar, idx) => {
+                const sub = jar.items.reduce((acc, item) => acc + (parseFloat(item.amount) || 0), 0);
+                const isActive = idx === activeJarIndex;
+                const btn = document.createElement('button');
+                btn.className = `px-3.5 py-2 text-xs font-bold rounded-xl transition flex items-center space-x-2 ${isActive ? 'bg-brand-600 text-white shadow-md shadow-brand-600/20' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`;
+                btn.innerHTML = `<span>${idx + 1}. ${jar.name.split(' ')[0]}</span> <span id="jar-tab-subtotal-${idx}" class="px-2 py-0.5 text-[10px] rounded-full ${isActive ? 'bg-brand-800 text-white' : 'bg-slate-100 text-slate-700'}">${formatPHP(sub)}</span>`;
+                btn.onclick = () => { activeJarIndex = idx; calculateMoneyJarTotals(); };
+                container.appendChild(btn);
+            });
+        }
+
+        function renderActiveJarContent(jarSubtotals, totalIncome) {
+            const jar = suiteState.jars[activeJarIndex];
+            const sub = jarSubtotals[activeJarIndex];
+            const idealPct = suiteState.idealPercentages[activeJarIndex];
+            const actualPct = totalIncome > 0 ? (sub / totalIncome) * 100 : 0;
+            const container = document.getElementById('jar-content-container');
+
+            let html = `
+                <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-200 gap-4">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2.5 py-1 text-xs font-bold rounded-lg ${jar.badgeColor}">Jar #${activeJarIndex + 1}</span>
+                            <h3 class="text-base font-bold text-slateCustom-900">${jar.name}</h3>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">${jar.subtitle}</p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-white px-3.5 py-2 rounded-xl border border-slate-200 text-right shadow-sm">
+                            <span class="text-[10px] uppercase font-bold text-slate-400 block">Subtotal</span>
+                            <span id="active-jar-subtotal-display" class="text-base font-black text-brand-600">${formatPHPDecimal(sub)}</span>
+                        </div>
+                        <div class="bg-white px-3.5 py-2 rounded-xl border border-slate-200 text-right shadow-sm">
+                            <span class="text-[10px] uppercase font-bold text-slate-400 block">Actual / Ideal</span>
+                            <span id="active-jar-pct-display" class="text-xs font-bold text-slate-800">${actualPct.toFixed(1)}% <span class="text-slate-400">(${idealPct}%)</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 overflow-x-auto bg-white rounded-xl border border-slate-200 shadow-sm">
+                    <table class="min-w-full divide-y divide-slate-200 text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                <th class="px-4 py-3 w-3/5">Expense Description</th>
+                                <th class="px-4 py-3 w-2/5">Monthly Amount (₱)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+            `;
+
+            const limit = suiteState.activeItemLimit;
+            for (let itemIdx = 0; itemIdx < limit; itemIdx++) {
+                if (!jar.items[itemIdx]) jar.items[itemIdx] = { name: "", amount: 0 };
+                const item = jar.items[itemIdx];
+                html += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="px-4 py-2">
+                            <input type="text" value="${escapeHtml(item.name)}" oninput="updateItemName(${activeJarIndex}, ${itemIdx}, this.value)" class="w-full bg-transparent border-b border-transparent hover:border-slate-300 focus:border-brand-500 focus:outline-none py-1 text-slate-900 text-xs font-medium" placeholder="Expense description...">
+                        </td>
+                        <td class="px-4 py-2">
+                            <div class="relative rounded-lg shadow-sm max-w-xs">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 font-semibold text-xs">₱</div>
+                                <input type="number" value="${item.amount === 0 ? '' : item.amount}" oninput="updateItemAmount(${activeJarIndex}, ${itemIdx}, this.value)" id="jar-item-${activeJarIndex}-${itemIdx}" class="w-full pl-7 pr-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none" placeholder="0.00">
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function updateItemName(jarIdx, itemIdx, val) {
+            suiteState.jars[jarIdx].items[itemIdx].name = val;
+            saveState();
+        }
+
+        function updateItemAmount(jarIdx, itemIdx, val) {
+            suiteState.jars[jarIdx].items[itemIdx].amount = val === "" ? 0 : parseFloat(val);
+            saveState();
+            
+            let totalAllocated = 0;
+            let jarSubtotals = suiteState.jars.map(jar => {
+                const sub = jar.items.reduce((acc, item) => acc + (parseFloat(item.amount) || 0), 0);
+                totalAllocated += sub;
+                return sub;
+            });
+            const a = suiteState.incomes.a;
+            const b = suiteState.incomes.b;
+            const c = suiteState.incomes.c;
+            const totalIncome = a + b + c;
+
+            const activeSub = jarSubtotals[activeJarIndex];
+            const activeSubEl = document.getElementById('active-jar-subtotal-display');
+            if (activeSubEl) {
+                activeSubEl.innerText = formatPHPDecimal(activeSub);
+            }
+            const activePctEl = document.getElementById('active-jar-pct-display');
+            if (activePctEl) {
+                const idealPct = suiteState.idealPercentages[activeJarIndex];
+                const actualPct = totalIncome > 0 ? (activeSub / totalIncome) * 100 : 0;
+                activePctEl.innerHTML = `${actualPct.toFixed(1)}% <span class="text-slate-400">(${idealPct}%)</span>`;
+            }
+
+            suiteState.jars.forEach((_, idx) => {
+                const tabBadge = document.getElementById(`jar-tab-subtotal-${idx}`);
+                if (tabBadge) {
+                    tabBadge.innerText = formatPHP(jarSubtotals[idx]);
+                }
+            });
+
+            document.getElementById('summary-total-allocated').innerText = formatPHPDecimal(totalAllocated);
+            const netFlow = totalIncome - totalAllocated;
+            const netFlowEl = document.getElementById('summary-net-flow');
+            if (netFlowEl) {
+                netFlowEl.innerText = formatPHPDecimal(netFlow);
+            }
+
+            renderBreakdownTable(jarSubtotals, totalIncome);
+            renderAnalyticsBars(jarSubtotals, totalIncome);
+            renderAdvisorFeedback(jarSubtotals, totalIncome);
+            updateJarChart(jarSubtotals);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function renderBreakdownTable(jarSubtotals, totalIncome) {
+            const tbody = document.getElementById('breakdown-table-body');
+            tbody.innerHTML = '';
+
+            let grandTotalIdeal = 0;
+            let grandTotalActual = 0;
+
+            suiteState.jars.forEach((jar, idx) => {
+                const idealPct = suiteState.idealPercentages[idx];
+                const idealAmount = (totalIncome * idealPct) / 100;
+                const sub = jarSubtotals[idx];
+                const actualPct = totalIncome > 0 ? (sub / totalIncome) * 100 : 0;
+                
+                grandTotalIdeal += idealAmount;
+                grandTotalActual += sub;
+
+                const variance = idealAmount - sub;
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-50 transition";
+                row.innerHTML = `
+                    <td class="px-4 py-3 font-semibold text-slate-900">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${getJarColor(idx)}"></span>
+                            <span>${idx + 1}. ${jar.name}</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-center font-semibold text-slate-700">${idealPct}%</td>
+                    <td class="px-4 py-3 text-right font-medium text-slate-800">${formatPHPDecimal(idealAmount)}</td>
+                    <td class="px-4 py-3 text-right font-bold text-amber-600">${formatPHPDecimal(sub)}</td>
+                    <td class="px-4 py-3 text-center font-semibold text-slate-800">${actualPct.toFixed(1)}%</td>
+                    <td class="px-4 py-3 text-right font-bold ${variance < 0 ? 'text-brand-600' : 'text-emerald-600'}">${variance > 0 ? '+' : ''}${formatPHPDecimal(variance)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            const totalVariance = grandTotalIdeal - grandTotalActual;
+            const totalActualPct = totalIncome > 0 ? (grandTotalActual / totalIncome) * 100 : 0;
+            const summaryRow = document.createElement('tr');
+            summaryRow.className = "bg-slate-100 font-black text-slate-900 border-t-2 border-slate-300";
+            summaryRow.innerHTML = `
+                <td class="px-4 py-3">TOTAL CASH FLOW ALLOCATION</td>
+                <td class="px-4 py-3 text-center">100%</td>
+                <td class="px-4 py-3 text-right">${formatPHPDecimal(grandTotalIdeal)}</td>
+                <td class="px-4 py-3 text-right text-amber-600">${formatPHPDecimal(grandTotalActual)}</td>
+                <td class="px-4 py-3 text-center">${totalActualPct.toFixed(1)}%</td>
+                <td class="px-4 py-3 text-right ${totalVariance < 0 ? 'text-brand-600' : 'text-emerald-600'}">${totalVariance > 0 ? '+' : ''}${formatPHPDecimal(totalVariance)}</td>
+            `;
+            tbody.appendChild(summaryRow);
+        }
+
+        function getJarColor(idx) {
+            return ['#D61A0C', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6'][idx] || '#6B7280';
+        }
+
+        function renderAnalyticsBars(jarSubtotals, totalIncome) {
+            const container = document.getElementById('analytics-progress-bars');
+            container.innerHTML = '';
+
+            suiteState.jars.forEach((jar, idx) => {
+                const sub = jarSubtotals[idx];
+                const idealPct = suiteState.idealPercentages[idx];
+                const actualPct = totalIncome > 0 ? (sub / totalIncome) * 100 : 0;
+                
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-1.5";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-bold text-slate-900">${idx + 1}. ${jar.name}</span>
+                        <span class="font-semibold text-slate-700">${formatPHP(sub)} (${actualPct.toFixed(1)}% / Ideal: ${idealPct}%)</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                        <div class="h-2 rounded-full transition-all duration-500" style="width: ${Math.min(actualPct, 100)}%; background-color: ${getJarColor(idx)}"></div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderAdvisorFeedback(jarSubtotals, totalIncome) {
+            const container = document.getElementById('advisor-feedback-container');
+            container.innerHTML = '';
+
+            if (totalIncome === 0) {
+                container.innerHTML = `
+                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 text-xs flex items-center space-x-2">
+                        <i class="fa-solid fa-circle-info text-brand-600 text-base"></i>
+                        <span>Enter monthly income streams to view Financial Advisor feedback analysis.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            const needsPct = (jarSubtotals[0] / totalIncome) * 100;
+            const savingsPct = (jarSubtotals[2] / totalIncome) * 100;
+            const insurancePct = (jarSubtotals[3] / totalIncome) * 100;
+            const totalAllocated = jarSubtotals.reduce((a, b) => a + b, 0);
+
+            let feedbacks = [];
+
+            if (needsPct > 55) {
+                feedbacks.push({ type: 'warning', title: 'Needs / Fixed Bills High Share', text: `Needs jar takes up ${needsPct.toFixed(1)}% of income (above 50% target benchmark). Look into optimizing fixed debts.` });
+            } else {
+                feedbacks.push({ type: 'success', title: 'Needs Budget Well-Controlled', text: `Needs are disciplined at ${needsPct.toFixed(1)}%, within the 50% ideal target.` });
+            }
+
+            if (insurancePct < 10) {
+                feedbacks.push({ type: 'warning', title: 'Income Protection Gap', text: `Insurance allocation is ${insurancePct.toFixed(1)}% (recommended target is 10%). Strengthen medical & term coverage.` });
+            } else {
+                feedbacks.push({ type: 'success', title: 'Strong Life Protection', text: `Insurance allocation is solid at ${insurancePct.toFixed(1)}%, establishing peace of mind.` });
+            }
+
+            if (savingsPct < 20) {
+                feedbacks.push({ type: 'warning', title: 'Savings Rate Boost Needed', text: `Savings & investment jar is ${savingsPct.toFixed(1)}% (target is 20%). Increase liquid wealth buffers.` });
+            } else {
+                feedbacks.push({ type: 'success', title: 'Discipline Wealth Compounding', text: `Outstanding ${savingsPct.toFixed(1)}% savings rate, backing long-term wealth compounding.` });
+            }
+
+            feedbacks.forEach(fb => {
+                let cls = fb.type === 'warning' ? 'border-amber-200 bg-amber-50 text-amber-900' : 'border-emerald-200 bg-emerald-50 text-emerald-900';
+                let icon = fb.type === 'warning' ? 'fa-triangle-exclamation text-amber-600' : 'fa-circle-check text-emerald-600';
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-xl border ${cls} flex items-start space-x-2.5 shadow-sm text-xs`;
+                card.innerHTML = `<i class="fa-solid ${icon} mt-0.5 text-sm"></i><div><h4 class="font-bold">${fb.title}</h4><p class="mt-0.5 opacity-90">${fb.text}</p></div>`;
+                container.appendChild(card);
+            });
+        }
+
+        function updateJarChart(jarSubtotals) {
+            const ctx = document.getElementById('jarChart').getContext('2d');
+            const labels = suiteState.jars.map(j => j.name.split(' ')[0]);
+
+            if (jarChartInstance) {
+                jarChartInstance.data.datasets[0].data = jarSubtotals;
+                jarChartInstance.update();
+                return;
+            }
+
+            jarChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: jarSubtotals,
+                        backgroundColor: ['#D61A0C', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Inter' } } },
+                        datalabels: {
+                            color: '#fff',
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (value) => value > 0 ? '₱' + Math.round(value/1000) + 'k' : ''
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+
+        // STEP 3: LIFE PROTECTION (HLV) LOGIC
+        function calculateLifeNeeds() {
+            const years = parseInt(document.getElementById('incomeReplaceYears').value) || 10;
+            document.getElementById('incomeReplaceYearsVal').innerText = years + ' yrs';
+
+            const monthlyExpenses = suiteState.jars[0].items.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0) || 50000;
+            const annualExpense = monthlyExpenses * 12;
+            const incomeNeed = annualExpense * years;
+            const finalExp = parseFloat(document.getElementById('finalExpenses').value) || 0;
+
+            const totalGrossNeed = incomeNeed + suiteState.debts + finalExp;
+            const totalCredits = suiteState.existingInsurance + suiteState.assets;
+            const netNeed = Math.max(0, totalGrossNeed - totalCredits);
+
+            document.getElementById('annualExpenseCalc').innerText = formatPHP(annualExpense);
+            document.getElementById('debtsCalc').innerText = formatPHP(suiteState.debts);
+            document.getElementById('assetsCreditCalc').innerText = '- ' + formatPHP(totalCredits);
+            document.getElementById('netLifeNeedDisplay').innerText = formatPHPDecimal(netNeed);
+
+            updateLifeChart(incomeNeed, suiteState.debts, finalExp, totalCredits);
+        }
+
+        function updateLifeChart(inc, debts, finalExp, credits) {
+            const ctx = document.getElementById('lifeChart').getContext('2d');
+            if (lifeChartInstance) {
+                lifeChartInstance.data.datasets[0].data = [inc, debts, finalExp, credits];
+                lifeChartInstance.update();
+                return;
+            }
+
+            lifeChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Income Replacement', 'Debts', 'Final Expenses', 'Existing Assets/Policies'],
+                    datasets: [{
+                        data: [inc, debts, finalExp, credits],
+                        backgroundColor: ['#D61A0C', '#9B1C1C', '#E2E8F0', '#1E293B']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { size: 10 } } },
+                        datalabels: {
+                            color: '#fff',
+                            font: { weight: 'bold', size: 9 },
+                            formatter: (val) => val > 0 ? '₱' + Math.round(val/1000) + 'k' : ''
+                        }
+                    }
+                }
+            });
+        }
+
+        // STEP 4: MULTI-CHILDREN EDUCATION LOGIC
+        function changeNumChildren(count) {
+            const num = parseInt(count) || 1;
+            while (suiteState.children.length < num) {
+                const i = suiteState.children.length + 1;
+                suiteState.children.push({
+                    name: `Child ${i}`,
+                    age: 3,
+                    collegeAge: 18,
+                    tuition: 180000,
+                    duration: 4,
+                    inflation: 7.0
+                });
+            }
+            suiteState.children = suiteState.children.slice(0, num);
+            calculateEduNeeds();
+        }
+
+        function updateChildField(index, field, value) {
+            if (!suiteState.children[index]) return;
+            if (field === 'name') {
+                suiteState.children[index].name = value;
+            } else {
+                suiteState.children[index][field] = value === "" ? 0 : parseFloat(value);
+            }
+            saveState();
+
+            const child = suiteState.children[index];
+            const childAge = child.age || 0;
+            const collegeAge = child.collegeAge || 18;
+            const currentTuition = child.tuition || 0;
+            const courseYears = child.duration || 4;
+            const inflation = (child.inflation || 0) / 100;
+            const yearsToCollege = Math.max(0, collegeAge - childAge);
+
+            let futureCost = 0;
+            for (let i = 0; i < courseYears; i++) {
+                futureCost += currentTuition * Math.pow(1 + inflation, yearsToCollege + i);
+            }
+            const todayCost = currentTuition * courseYears;
+
+            const cardEl = document.getElementById(`child-card-${index}`);
+            if (cardEl) {
+                const yrsToColEl = cardEl.querySelector('.js-years-to-college');
+                if (yrsToColEl) yrsToColEl.innerText = yearsToCollege + ' Years';
+
+                const todayCostEl = cardEl.querySelector('.js-today-cost');
+                if (todayCostEl) todayCostEl.innerText = formatPHP(todayCost);
+
+                const futureCostEl = cardEl.querySelector('.js-future-cost');
+                if (futureCostEl) futureCostEl.innerText = formatPHP(futureCost);
+
+                const badgeEl = cardEl.querySelector('.js-child-badge-target');
+                if (badgeEl) badgeEl.innerText = 'Target: ' + formatPHP(futureCost);
+            }
+
+            let grandTotalFutureCost = 0;
+            let chartLabels = [];
+            let chartTodayCosts = [];
+            let chartFutureCosts = [];
+
+            suiteState.children.forEach((c, idx) => {
+                const cAge = c.age || 0;
+                const cColAge = c.collegeAge || 18;
+                const cTuition = c.tuition || 0;
+                const cDur = c.duration || 4;
+                const cInf = (c.inflation || 0) / 100;
+                const cYrs = Math.max(0, cColAge - cAge);
+
+                let cFuture = 0;
+                for (let i = 0; i < cDur; i++) {
+                    cFuture += cTuition * Math.pow(1 + cInf, cYrs + i);
+                }
+                const cToday = cTuition * cDur;
+                grandTotalFutureCost += cFuture;
+
+                chartLabels.push(c.name || `Child ${idx + 1}`);
+                chartTodayCosts.push(Math.round(cToday));
+                chartFutureCosts.push(Math.round(cFuture));
+            });
+
+            document.getElementById('combinedEduCostDisplay').innerText = formatPHP(grandTotalFutureCost);
+            const sumEduTarget = document.getElementById('sumEduTarget');
+            if (sumEduTarget) sumEduTarget.innerText = formatPHP(grandTotalFutureCost);
+
+            updateEduChart(chartLabels, chartTodayCosts, chartFutureCosts);
+        }
+
+        function calculateEduNeeds() {
+            const container = document.getElementById('childrenContainer');
+            container.innerHTML = '';
+
+            let grandTotalFutureCost = 0;
+            let chartLabels = [];
+            let chartTodayCosts = [];
+            let chartFutureCosts = [];
+
+            suiteState.children.forEach((child, idx) => {
+                const childAge = child.age || 0;
+                const collegeAge = child.collegeAge || 18;
+                const currentTuition = child.tuition || 0;
+                const courseYears = child.duration || 4;
+                const inflation = (child.inflation || 0) / 100;
+
+                const yearsToCollege = Math.max(0, collegeAge - childAge);
+
+                let futureCost = 0;
+                for (let i = 0; i < courseYears; i++) {
+                    futureCost += currentTuition * Math.pow(1 + inflation, yearsToCollege + i);
+                }
+                const todayCost = currentTuition * courseYears;
+
+                grandTotalFutureCost += futureCost;
+                chartLabels.push(child.name || `Child ${idx + 1}`);
+                chartTodayCosts.push(Math.round(todayCost));
+                chartFutureCosts.push(Math.round(futureCost));
+
+                const card = document.createElement('div');
+                card.id = `child-card-${idx}`;
+                card.className = "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <input type="text" value="${escapeHtml(child.name)}" oninput="updateChildField(${idx}, 'name', this.value)" class="font-bold text-slateCustom-900 text-sm border-b border-transparent hover:border-slate-300 focus:border-brand-500 outline-none bg-transparent" placeholder="Child's Name">
+                        <span class="px-3 py-1 bg-brand-50 text-brand-700 text-xs font-bold rounded-full js-child-badge-target">Target: ${formatPHP(futureCost)}</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div>
+                            <label class="block font-semibold text-slate-500 uppercase mb-1">Current Age</label>
+                            <input type="number" value="${child.age === 0 ? '' : child.age}" oninput="updateChildField(${idx}, 'age', this.value)" id="child-age-${idx}" class="w-full p-2 border border-slate-300 rounded-lg font-semibold">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-500 uppercase mb-1">College Entry Age</label>
+                            <input type="number" value="${child.collegeAge === 0 ? '' : child.collegeAge}" oninput="updateChildField(${idx}, 'collegeAge', this.value)" id="child-collegeAge-${idx}" class="w-full p-2 border border-slate-300 rounded-lg font-semibold">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-500 uppercase mb-1">Annual Tuition (₱)</label>
+                            <input type="number" value="${child.tuition === 0 ? '' : child.tuition}" step="10000" oninput="updateChildField(${idx}, 'tuition', this.value)" id="child-tuition-${idx}" class="w-full p-2 border border-slate-300 rounded-lg font-semibold">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-500 uppercase mb-1">Course Duration (Yrs)</label>
+                            <input type="number" value="${child.duration === 0 ? '' : child.duration}" oninput="updateChildField(${idx}, 'duration', this.value)" id="child-duration-${idx}" class="w-full p-2 border border-slate-300 rounded-lg font-semibold">
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-3 rounded-xl text-xs space-y-1 border border-slate-200">
+                        <div class="flex justify-between text-slate-600">
+                            <span>Years Until College:</span>
+                            <span class="font-bold text-slate-900 js-years-to-college">${yearsToCollege} Years</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600">
+                            <span>Today's Total College Cost:</span>
+                            <span class="font-bold text-slate-900 js-today-cost">${formatPHP(todayCost)}</span>
+                        </div>
+                        <div class="flex justify-between text-brand-700 font-extrabold pt-1 border-t border-slate-200">
+                            <span>Future Inflated Target:</span>
+                            <span class="js-future-cost">${formatPHP(futureCost)}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            document.getElementById('combinedEduCostDisplay').innerText = formatPHP(grandTotalFutureCost);
+            const sumEduTarget = document.getElementById('sumEduTarget');
+            if (sumEduTarget) sumEduTarget.innerText = formatPHP(grandTotalFutureCost);
+
+            updateEduChart(chartLabels, chartTodayCosts, chartFutureCosts);
+            saveState();
+        }
+
+        function updateEduChart(labels, todayCosts, futureCosts) {
+            const ctx = document.getElementById('eduChart').getContext('2d');
+            if (eduChartInstance) {
+                eduChartInstance.data.labels = labels;
+                eduChartInstance.data.datasets[0].data = todayCosts;
+                eduChartInstance.data.datasets[1].data = futureCosts;
+                eduChartInstance.update();
+                return;
+            }
+
+            eduChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: "Today's Cost", data: todayCosts, backgroundColor: '#1E293B', borderRadius: 6 },
+                        { label: "Future Inflated Cost", data: futureCosts, backgroundColor: '#D61A0C', borderRadius: 6 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { font: { size: 11, family: 'Inter' } } },
+                        datalabels: {
+                            color: '#fff',
+                            font: { weight: 'bold', size: 9 },
+                            formatter: (v) => v > 0 ? '₱' + Math.round(v/1000) + 'k' : ''
+                        }
+                    },
+                    scales: { y: { ticks: { callback: v => '₱' + (v / 1000).toFixed(0) + 'k' } } }
+                }
+            });
+        }
+
+        // STEP 5: RETIREMENT & PROPOSALS ENGINE
+        function calculateRetirementMaster() {
+            const currentAge = suiteState.clientAge;
+            const retirementAge = suiteState.retirementAge;
+            const desiredMonthly = parseFloat(document.getElementById('desiredMonthly').value) || 0;
+            const inflationRate = (parseFloat(document.getElementById('inflationRate').value) || 0) / 100;
+            const investmentReturn = (parseFloat(document.getElementById('investmentReturn').value) || 0) / 100;
+
+            const yearsToRetire = Math.max(0, retirementAge - currentAge);
+            document.getElementById('yearsToRetireDisplay').value = yearsToRetire + ' Years';
+            document.getElementById('resYearsToRetire').innerText = `Needed in ${yearsToRetire} years (Age ${retirementAge})`;
+
+            const futureMonthly = desiredMonthly * Math.pow(1 + inflationRate, yearsToRetire);
+            const monthlyReturnRate = investmentReturn / 12;
+            const totalMonthsInRetirement = 20 * 12;
+
+            let targetFund = 0;
+            if (monthlyReturnRate > 0) {
+                targetFund = futureMonthly * ((1 - Math.pow(1 + monthlyReturnRate, -totalMonthsInRetirement)) / monthlyReturnRate);
+            } else {
+                targetFund = futureMonthly * totalMonthsInRetirement;
+            }
+
+            const totalMonthsToRetire = yearsToRetire * 12;
+            let monthlySaving = 0;
+            if (totalMonthsToRetire > 0) {
+                if (monthlyReturnRate > 0) {
+                    monthlySaving = targetFund * monthlyReturnRate / (Math.pow(1 + monthlyReturnRate, totalMonthsToRetire) - 1);
+                } else {
+                    monthlySaving = targetFund / totalMonthsToRetire;
+                }
+            }
+
+            document.getElementById('resFutureMonthly').innerText = formatPHP(futureMonthly);
+            document.getElementById('resTargetFund').innerText = formatPHP(targetFund);
+            document.getElementById('resMonthlySaving').innerText = formatPHP(monthlySaving);
+
+            updateRetirementGrowthChart(currentAge, retirementAge, monthlySaving, investmentReturn);
+            updateProductDetails();
+        }
+
+        function getPruLifetimeRate(age) {
+            return 160 + (Math.max(age, 1) - 18) * 4.35;
+        }
+
+        function getPruSteadyRate(age) {
+            return 130 + (Math.max(age, 1) - 18) * 2.8;
+        }
+
+        function renderEliteOptions() {
+            const container = document.getElementById('eliteTermButtons');
+            container.innerHTML = '';
+            
+            eliteOptions.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                const isSelected = idx === suiteState.selectedEliteIndex;
+                btn.className = `p-3.5 rounded-2xl text-left border transition-all ${isSelected ? 'bg-brand-600 text-white border-brand-600 shadow-md font-bold' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`;
+                btn.innerHTML = `
+                    <span class="block text-[10px] uppercase opacity-80">${opt.name} (${opt.years})</span>
+                    <span class="text-xs block font-extrabold mt-0.5">${opt.monthly}</span>
+                `;
+                btn.onclick = () => {
+                    suiteState.selectedEliteIndex = idx;
+                    renderEliteOptions();
+                    renderEliteBenefitsAndFunds();
+                };
+                container.appendChild(btn);
+            });
+            renderEliteBenefitsAndFunds();
+        }
+
+        function renderEliteBenefitsAndFunds() {
+            const opt = eliteOptions[suiteState.selectedEliteIndex];
+            document.getElementById('eliteSelectedPlanTitle').innerText = opt.name;
+            document.getElementById('eliteMonthly').innerText = opt.monthly;
+
+            const fundGrid = document.getElementById('eliteFundGrid');
+            fundGrid.innerHTML = `
+                <div class="bg-white p-3 rounded-xl border border-brand-100 shadow-sm">
+                    <span class="block text-[10px] text-slate-400 font-bold uppercase">5th Year</span>
+                    <span class="text-xs font-extrabold text-slate-800">${opt.projectedFunds.yr5}</span>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-brand-100 shadow-sm">
+                    <span class="block text-[10px] text-slate-400 font-bold uppercase">10th Year</span>
+                    <span class="text-xs font-extrabold text-slate-800">${opt.projectedFunds.yr10}</span>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-brand-100 shadow-sm">
+                    <span class="block text-[10px] text-slate-400 font-bold uppercase">15th Year</span>
+                    <span class="text-xs font-extrabold text-slate-800">${opt.projectedFunds.yr15}</span>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-brand-100 shadow-sm">
+                    <span class="block text-[10px] text-slate-400 font-bold uppercase">20th Year</span>
+                    <span class="text-xs font-extrabold text-brand-600">${opt.projectedFunds.yr20}</span>
+                </div>
+            `;
+
+            const benefits = [
+                `Life Protection: ${opt.coverages.death}`,
+                `Accidental Death: ${opt.coverages.accidental}`,
+                `Disability Benefit: ${opt.coverages.disability}`,
+                `Critical Illness: ${opt.coverages.criticalIllness}`,
+                `Hospital Income: ${opt.coverages.hospitalization}`
+            ];
+
+            const benefitsContainer = document.getElementById('prodBenefitsList');
+            benefitsContainer.innerHTML = '';
+            benefits.forEach(b => {
+                const item = document.createElement('div');
+                item.className = 'flex items-start gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100';
+                item.innerHTML = `<i class="fa-solid fa-circle-check text-brand-600 mt-0.5"></i><span class="font-bold text-slate-800">${b}</span>`;
+                benefitsContainer.appendChild(item);
+            });
+        }
+
+        function updateProductDetails() {
+            const key = document.getElementById('selectedProduct').value;
+            suiteState.selectedProduct = key;
+            const currentAge = suiteState.clientAge;
+            const desiredMonthly = parseFloat(document.getElementById('desiredMonthly').value) || 20000;
+            const prod = productData[key];
+
+            document.getElementById('prodBadge').innerText = prod.badge;
+            document.getElementById('prodTitle').innerText = prod.title;
+            document.getElementById('prodScenario').innerText = prod.scenario;
+
+            if (key === 'lifetimeincome' || key === 'prusteady') {
+                document.getElementById('eliteOptionsContainer').classList.add('hidden');
+                document.getElementById('standardPremiumContainer').classList.remove('hidden');
+                document.getElementById('pruLifetimeDynamicSection').classList.remove('hidden');
+
+                const annualPayoutGoal = desiredMonthly * 12;
+                let sumAssured, ratePer1k, annualPremium, monthlyModalPremium, total10YearPaid;
+
+                if (key === 'lifetimeincome') {
+                    sumAssured = annualPayoutGoal / 0.05;
+                    ratePer1k = getPruLifetimeRate(currentAge);
+                    annualPremium = (sumAssured / 1000) * ratePer1k;
+                    monthlyModalPremium = annualPremium * 0.0975;
+                    total10YearPaid = annualPremium * 10;
+                } else {
+                    sumAssured = annualPayoutGoal / 0.10;
+                    ratePer1k = getPruSteadyRate(currentAge);
+                    annualPremium = (sumAssured / 1000) * ratePer1k;
+                    monthlyModalPremium = annualPremium * 0.0975;
+                    total10YearPaid = annualPremium * 10;
+                }
+
+                document.getElementById('prodTerm').innerText = `10-Year Payment Term (${formatPHP(annualPremium)}/yr | ${formatPHP(monthlyModalPremium)}/mo)`;
+                document.getElementById('prodSumAssured').innerText = `${formatPHP(sumAssured)} Base Sum Assured`;
+
+                document.getElementById('pruSAVal').innerText = formatPHP(sumAssured);
+                document.getElementById('pruAnnualVal').innerText = formatPHP(annualPremium);
+                document.getElementById('pruMonthlyVal').innerText = formatPHP(monthlyModalPremium);
+                document.getElementById('pru10YrTotalVal').innerText = formatPHP(total10YearPaid);
+
+                if (key === 'lifetimeincome') {
+                    document.getElementById('pruPayoutTitle').innerText = "Guaranteed Cash Payout (Starts Policy Year 6)";
+                    document.getElementById('pruPayoutDesc').innerText = `${formatPHP(annualPayoutGoal)} / year (${formatPHP(desiredMonthly)} / month)`;
+                    document.getElementById('pruBadgeLabel').innerText = "Lifetime Guaranteed";
+                } else {
+                    document.getElementById('pruPayoutTitle').innerText = "Guaranteed Cash Payout (Years 11 to 20)";
+                    document.getElementById('pruPayoutDesc').innerText = `${formatPHP(annualPayoutGoal)} / year (10% of Sum Assured)`;
+                    document.getElementById('pruBadgeLabel').innerText = "20-Yr Endowment";
+                }
+
+                const tableHead = document.getElementById('pruTableHead');
+                const tableBody = document.getElementById('pruProjectionTableBody');
+                tableBody.innerHTML = '';
+
+                if (key === 'lifetimeincome') {
+                    tableHead.innerHTML = `
+                        <tr>
+                            <th class="p-3">Policy Year</th>
+                            <th class="p-3">Attained Age</th>
+                            <th class="p-3">Total Premiums Paid</th>
+                            <th class="p-3 text-emerald-700">Guaranteed Cash Payout</th>
+                            <th class="p-3 text-brand-600">Est. Total Living Benefits</th>
+                            <th class="p-3">Net Gain vs Paid</th>
+                        </tr>
+                    `;
+
+                    const targetYears = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40];
+                    const age60Yr = Math.max(1, 60 - currentAge);
+                    const milestones = Array.from(new Set([...targetYears, age60Yr])).sort((a, b) => a - b);
+                    let cumulativePayout = 0;
+
+                    for (let yr = 1; yr <= Math.max(...milestones); yr++) {
+                        const totalPaid = Math.min(yr, 10) * annualPremium;
+                        const currentYearPayout = (yr >= 6) ? annualPayoutGoal : 0;
+                        cumulativePayout += currentYearPayout;
+
+                        if (milestones.includes(yr)) {
+                            const attainedAge = currentAge + yr;
+                            let livingBenefitsCell = '₱0';
+                            let netGainCell = '-' + formatPHP(totalPaid);
+
+                            if (yr >= 2) {
+                                const baseGuaranteedCashValue = (yr <= 10) ? (sumAssured * (yr / 10) * 0.7) : sumAssured;
+                                const totalLivingBenefits = baseGuaranteedCashValue + cumulativePayout;
+                                const netGain = totalLivingBenefits - totalPaid;
+                                livingBenefitsCell = formatPHP(totalLivingBenefits);
+                                netGainCell = `${netGain >= 0 ? '+' : ''}${formatPHP(netGain)}`;
+                            }
+
+                            const isRetinement = (attainedAge === 60);
+                            const tr = document.createElement('tr');
+                            tr.className = isRetinement ? 'bg-brand-50 font-bold border-l-4 border-brand-600' : 'hover:bg-slate-50';
+                            tr.innerHTML = `
+                                <td class="p-3">Year ${yr} ${isRetinement ? '<span class="text-[10px] bg-brand-600 text-white px-2 py-0.5 rounded-full ml-1">Retirement</span>' : ''}</td>
+                                <td class="p-3 font-semibold">Age ${attainedAge}</td>
+                                <td class="p-3 text-slate-600">${formatPHP(totalPaid)}</td>
+                                <td class="p-3 font-extrabold text-emerald-700">${yr >= 6 ? formatPHP(cumulativePayout) + ` <span class="text-[10px] font-normal text-slate-500">(${formatPHP(currentYearPayout)}/yr)</span>` : '₱0'}</td>
+                                <td class="p-3 font-extrabold text-brand-600">${livingBenefitsCell}</td>
+                                <td class="p-3 font-bold ${netGainCell.startsWith('+') ? 'text-emerald-600' : 'text-slate-400'}">${netGainCell}</td>
+                            `;
+                            tableBody.appendChild(tr);
+                        }
+                    }
+                } else {
+                    tableHead.innerHTML = `
+                        <tr>
+                            <th class="p-3">Policy Year</th>
+                            <th class="p-3">Attained Age</th>
+                            <th class="p-3">Cumulative Premiums</th>
+                            <th class="p-3">Guaranteed Cash Value</th>
+                            <th class="p-3 text-emerald-700">Guaranteed Payouts</th>
+                        </tr>
+                    `;
+
+                    let cumulativePayout = 0;
+                    for (let yr = 1; yr <= 20; yr++) {
+                        const totalPaid = Math.min(yr, 10) * annualPremium;
+                        const attainedAge = currentAge + yr;
+                        let gcv = yr >= 2 ? (yr === 20 ? sumAssured : sumAssured * (yr / 20) * 0.75) : 0;
+                        const currentYearPayout = (yr >= 11) ? annualPayoutGoal : 0;
+                        if (yr >= 11) cumulativePayout += currentYearPayout;
+
+                        const tr = document.createElement('tr');
+                        tr.className = (yr === 20) ? 'bg-brand-50 font-bold border-l-4 border-brand-600' : 'hover:bg-slate-50';
+                        tr.innerHTML = `
+                            <td class="p-3">Year ${yr} ${yr === 20 ? '<span class="text-[10px] bg-brand-600 text-white px-2 py-0.5 rounded-full ml-1">Maturity</span>' : ''}</td>
+                            <td class="p-3 font-semibold">Age ${attainedAge}</td>
+                            <td class="p-3 text-slate-600">${formatPHP(totalPaid)}</td>
+                            <td class="p-3 text-slate-700">${formatPHP(gcv)}</td>
+                            <td class="p-3 font-extrabold text-emerald-700">${formatPHP(cumulativePayout)}</td>
+                        `;
+                        tableBody.appendChild(tr);
+                    }
+                }
+
+                const benefits = key === 'lifetimeincome' ? [
+                    `${formatPHP(sumAssured * 2)} Guaranteed Lifetime Death Protection`,
+                    `${formatPHP(sumAssured)} Guaranteed Base Cash Value Protection`,
+                    `Guaranteed Payout: ${formatPHP(annualPayoutGoal)} Annually (${formatPHP(desiredMonthly)}/mo) starting Policy Year 6`
+                ] : [
+                    `${formatPHP(sumAssured * 2)} Guaranteed Death Benefit (200% of Sum Assured)`,
+                    `${formatPHP(sumAssured)} Guaranteed Maturity Benefit at Year 20`,
+                    `Guaranteed Payout: ${formatPHP(annualPayoutGoal)} Annually (10% of Sum Assured) from Year 11 to 20`
+                ];
+
+                const benefitsContainer = document.getElementById('prodBenefitsList');
+                benefitsContainer.innerHTML = '';
+                benefits.forEach(b => {
+                    const item = document.createElement('div');
+                    item.className = 'flex items-start gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100';
+                    item.innerHTML = `<i class="fa-solid fa-circle-check text-brand-600 mt-0.5"></i><span class="font-medium text-slate-800">${b}</span>`;
+                    benefitsContainer.appendChild(item);
+                });
+
+                const timeline = key === 'lifetimeincome' ? [
+                    { phase: `Age ${currentAge} - ${currentAge + 9} (10-Year Pay)`, desc: `Pay ${formatPHP(annualPremium)} annually (or ${formatPHP(monthlyModalPremium)}/mo) for 10 years.` },
+                    { phase: `Age ${currentAge + 5} Onwards (Lifetime Payouts)`, desc: `Receive ${formatPHP(annualPayoutGoal)} cash payouts annually for life.` }
+                ] : [
+                    { phase: `Years 1 - 10 (Premium Phase)`, desc: `Pay ${formatPHP(annualPremium)} annually for 10 years.` },
+                    { phase: `Years 11 - 20 (Guaranteed Payouts)`, desc: `Receive ${formatPHP(annualPayoutGoal)} cash payouts annually.` },
+                    { phase: `Year 20 (Maturity)`, desc: `Receive 100% of Sum Assured (${formatPHP(sumAssured)}) as final maturity.` }
+                ];
+
+                const timelineContainer = document.getElementById('prodTimeline');
+                timelineContainer.innerHTML = '';
+                timeline.forEach((t, i) => {
+                    const step = document.createElement('div');
+                    step.className = 'flex items-start gap-3 bg-slateCustom-900 text-white p-3.5 rounded-2xl text-xs';
+                    step.innerHTML = `<div class="w-6 h-6 bg-brand-600 rounded-full flex items-center justify-center font-bold shrink-0 text-[11px]">${i + 1}</div><div><h4 class="font-bold text-brand-400 uppercase">${t.phase}</h4><p class="text-slate-300 mt-0.5">${t.desc}</p></div>`;
+                    timelineContainer.appendChild(step);
+                });
+
+            } else if (prod.isElite) {
+                document.getElementById('pruLifetimeDynamicSection').classList.add('hidden');
+                document.getElementById('eliteOptionsContainer').classList.remove('hidden');
+                document.getElementById('standardPremiumContainer').classList.add('hidden');
+                renderEliteOptions();
+            } else {
+                document.getElementById('pruLifetimeDynamicSection').classList.add('hidden');
+                document.getElementById('eliteOptionsContainer').classList.add('hidden');
+                document.getElementById('standardPremiumContainer').classList.remove('hidden');
+                document.getElementById('prodTerm').innerText = prod.term;
+                document.getElementById('prodSumAssured').innerText = prod.sumAssured;
+
+                const benefitsContainer = document.getElementById('prodBenefitsList');
+                benefitsContainer.innerHTML = '';
+                prod.benefits.forEach(b => {
+                    const item = document.createElement('div');
+                    item.className = 'flex items-start gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100';
+                    item.innerHTML = `<i class="fa-solid fa-circle-check text-brand-600 mt-0.5"></i><span class="font-medium text-slate-800">${b}</span>`;
+                    benefitsContainer.appendChild(item);
+                });
+
+                const timelineContainer = document.getElementById('prodTimeline');
+                timelineContainer.innerHTML = '';
+                prod.timeline.forEach((t, i) => {
+                    const step = document.createElement('div');
+                    step.className = 'flex items-start gap-3 bg-slateCustom-900 text-white p-3.5 rounded-2xl text-xs';
+                    step.innerHTML = `<div class="w-6 h-6 bg-brand-600 rounded-full flex items-center justify-center font-bold shrink-0 text-[11px]">${i + 1}</div><div><h4 class="font-bold text-brand-400 uppercase">${t.phase}</h4><p class="text-slate-300 mt-0.5">${t.desc}</p></div>`;
+                    timelineContainer.appendChild(step);
+                });
+            }
+        }
+
+        function updateRetirementGrowthChart(currentAge, retirementAge, monthlySaving, annualReturn) {
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            const years = [];
+            const balances = [];
+            let currentBalance = 0;
+            const monthlyRate = annualReturn / 12;
+
+            for (let age = currentAge; age <= retirementAge; age++) {
+                years.push(`Age ${age}`);
+                balances.push(Math.round(currentBalance));
+                for (let m = 0; m < 12; m++) {
+                    currentBalance = (currentBalance + monthlySaving) * (1 + monthlyRate);
+                }
+            }
+
+            if (retirementGrowthChartInstance) {
+                retirementGrowthChartInstance.data.labels = years;
+                retirementGrowthChartInstance.data.datasets[0].data = balances;
+                retirementGrowthChartInstance.update();
+                return;
+            }
+
+            retirementGrowthChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        label: 'Projected Capital Fund (₱)',
+                        data: balances,
+                        borderColor: '#D61A0C',
+                        backgroundColor: 'rgba(214, 26, 12, 0.08)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.25
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            display: (context) => context.dataIndex % 5 === 0 || context.dataIndex === balances.length - 1,
+                            color: '#D61A0C',
+                            align: 'top',
+                            font: { weight: 'bold', size: 9 },
+                            formatter: (v) => '₱' + (v / 1000000).toFixed(1) + 'M'
+                        }
+                    },
+                    scales: { y: { ticks: { callback: v => '₱' + (v / 1000000).toFixed(1) + 'M' } } }
+                }
+            });
+        }
+
+        // STEP 6: SUMMARY & EXECUTIVE REPORT
+        function renderRecommendationsTable() {
+            // Maintained for backward compatibility with initialization calls
+        }
+
+        function updateSummaryPage() {
+            updateProfileMaster();
+            calculateBusinessContingency();
+            
+            const totalIncome = suiteState.incomes.a + suiteState.incomes.b + suiteState.incomes.c;
+            const totalAllocated = suiteState.jars.reduce((sum, jar) => sum + jar.items.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0), 0);
+            const surplus = Math.max(0, totalIncome - totalAllocated);
+
+            const sumSurplusEl = document.getElementById('sumSurplus');
+            if (sumSurplusEl) sumSurplusEl.innerText = formatPHPDecimal(surplus);
+            
+            const sumBizGapEl = document.getElementById('sumBizContingencyGap');
+            const bizGapBox = document.getElementById('printBizGapBox');
+            if (sumBizGapEl) {
+                if (suiteState.hasBusiness) {
+                    if (bizGapBox) bizGapBox.classList.remove('hidden');
+                    const bizEFGapDisplay = document.getElementById('bizEFGapDisplay');
+                    sumBizGapEl.innerText = bizEFGapDisplay ? bizEFGapDisplay.innerText : '₱0.00';
+                } else {
+                    if (bizGapBox) bizGapBox.classList.add('hidden');
+                }
+            }
+
+            const sumProtGapEl = document.getElementById('sumProtectionGap');
+            const netLifeNeedDisplay = document.getElementById('netLifeNeedDisplay');
+            if (sumProtGapEl && netLifeNeedDisplay) {
+                sumProtGapEl.innerText = netLifeNeedDisplay.innerText;
+            }
+            
+            const sumEduTargetEl = document.getElementById('sumEduTarget');
+            const eduBox = document.getElementById('printEduTargetBox');
+            if (sumEduTargetEl) {
+                if (suiteState.hasChildren) {
+                    if (eduBox) eduBox.classList.remove('hidden');
+                    const futureEduCostDisplay = document.querySelector('.js-future-cost');
+                    sumEduTargetEl.innerText = futureEduCostDisplay ? futureEduCostDisplay.innerText : document.getElementById('combinedEduCostDisplay').innerText;
+                } else {
+                    if (eduBox) eduBox.classList.add('hidden');
+                }
+            }
+
+            const sumRetTargetEl = document.getElementById('sumRetTarget');
+            const resTargetFund = document.getElementById('resTargetFund');
+            if (sumRetTargetEl && resTargetFund) {
+                sumRetTargetEl.innerText = resTargetFund.innerText;
+            }
+
+            const printCashflowText = document.getElementById('printCashflowSummaryText');
+            if (printCashflowText) {
+                let needsTotal = suiteState.jars[0].items.reduce((a,b)=>a+b.amount,0);
+                let wantsTotal = suiteState.jars[1].items.reduce((a,b)=>a+b.amount,0);
+                let savingsTotal = suiteState.jars[2].items.reduce((a,b)=>a+b.amount,0);
+                let insuranceTotal = suiteState.jars[3].items.reduce((a,b)=>a+b.amount,0);
+                let tithesTotal = suiteState.jars[4].items.reduce((a,b)=>a+b.amount,0);
+
+                printCashflowText.innerHTML = `
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <p><b>Client Name:</b> ${suiteState.clientName} (Age ${suiteState.clientAge})</p>
+                        <p><b>Target Retirement Age:</b> ${suiteState.retirementAge} Years Old</p>
+                        <p><b>Total Monthly Income:</b> ${formatPHPDecimal(totalIncome)}</p>
+                        <p><b>Total Allocated Expenses:</b> ${formatPHPDecimal(totalAllocated)}</p>
+                        <p><b>Unallocated Net Surplus:</b> ${formatPHPDecimal(surplus)}</p>
+                    </div>
+                    <div class="border-t border-slate-200 pt-2 mt-2">
+                        <p class="font-semibold text-slate-700 mb-1">Money Jars Allocation Summary:</p>
+                        <p>&bull; Non-Negotiable Needs & Bills: <b>${formatPHP(needsTotal)}</b></p>
+                        <p>&bull; Negotiable Wants & Lifestyle: <b>${formatPHP(wantsTotal)}</b></p>
+                        <p>&bull; EF, Savings & Investments: <b>${formatPHP(savingsTotal)}</b></p>
+                        <p>&bull; Insurance & Health Protection: <b>${formatPHP(insuranceTotal)}</b></p>
+                        <p>&bull; Charity & Tithes: <b>${formatPHP(tithesTotal)}</b></p>
+                    </div>
+                `;
+            }
+
+            const printBizSection = document.getElementById('printBusinessSection');
+            const printBizText = document.getElementById('printBusinessSummaryText');
+            if (printBizSection && printBizText) {
+                if (suiteState.hasBusiness) {
+                    printBizSection.classList.remove('hidden');
+                    const biz = suiteState.business;
+                    const targetEF = biz.monthlyOverhead * biz.runwayMonths;
+                    const bizGap = Math.max(0, targetEF - biz.currentCash);
+                    printBizText.innerHTML = `
+                        <div class="grid grid-cols-2 gap-2">
+                            <p><b>Monthly Business Overhead:</b> ${formatPHP(biz.monthlyOverhead)}</p>
+                            <p><b>Target Runway:</b> ${biz.runwayMonths} Months (${formatPHP(targetEF)})</p>
+                            <p><b>Current Business Cash Reserve:</b> ${formatPHP(biz.currentCash)}</p>
+                            <p class="text-brand-700 font-bold"><b>Business Emergency Fund Gap:</b> ${formatPHP(bizGap)}</p>
+                            <p><b>Outstanding Business Loans:</b> ${formatPHP(biz.loans)}</p>
+                            <p><b>Key Executive Replacement Cost:</b> ${formatPHP(biz.keyPersonCost)} / yr</p>
+                        </div>
+                    `;
+                } else {
+                    printBizSection.classList.add('hidden');
+                }
+            }
+
+            const printEduSection = document.getElementById('printEduSection');
+            const printEduText = document.getElementById('printEduSummaryText');
+            if (printEduSection && printEduText) {
+                if (suiteState.hasChildren) {
+                    printEduSection.classList.remove('hidden');
+                    let eduSummaryHtml = `<p class="font-semibold mb-1"><b>Total Children:</b> ${suiteState.children.length}</p>`;
+                    suiteState.children.forEach((c, idx) => {
+                        eduSummaryHtml += `<p>&bull; <b>Child ${idx + 1} (${c.name}, Age ${c.age}):</b> College Entry Age ${c.collegeAge} | Annual Tuition ${formatPHP(c.tuition)} | Course Duration ${c.duration} Yrs</p>`;
+                    });
+                    printEduText.innerHTML = eduSummaryHtml;
+                } else {
+                    printEduSection.classList.add('hidden');
+                }
+            }
+
+            const printRetirementText = document.getElementById('printRetirementSummaryText');
+            if (printRetirementText) {
+                const resFutureMonthly = document.getElementById('resFutureMonthly').innerText;
+                const resTargetFund = document.getElementById('resTargetFund').innerText;
+                const resMonthlySaving = document.getElementById('resMonthlySaving').innerText;
+                const netLifeNeed = document.getElementById('netLifeNeedDisplay').innerText;
+                printRetirementText.innerHTML = `
+                    <div class="grid grid-cols-2 gap-2">
+                        <p><b>Life Protection Gap (HLV):</b> ${netLifeNeed}</p>
+                        <p><b>Retirement Horizon:</b> ${suiteState.retirementAge - suiteState.clientAge} Years Remaining</p>
+                        <p><b>Future Monthly Payout Goal:</b> ${resFutureMonthly}</p>
+                        <p><b>Target Lump Sum Nest Egg:</b> ${resTargetFund}</p>
+                        <p class="col-span-2 text-emerald-700 font-bold"><b>Required Monthly Savings Target:</b> ${resMonthlySaving}</p>
+                    </div>
+                `;
+            }
+
+            const linkInput = document.getElementById('tailoredSolutionLinkInput');
+            if (linkInput && suiteState.tailoredLink) {
+                linkInput.value = suiteState.tailoredLink;
+            }
+
+            const linkInput2 = document.getElementById('tailoredSolutionLinkInput2');
+            if (linkInput2 && suiteState.tailoredLink2) {
+                linkInput2.value = suiteState.tailoredLink2;
+            }
+
+            updateAllocationChart();
+        }
+
+        function saveTailoredLink() {
+            const linkInput = document.getElementById('tailoredSolutionLinkInput');
+            if (linkInput) {
+                suiteState.tailoredLink = linkInput.value.trim();
+                saveState();
+                alert("Tailored solution recommendation link successfully saved!");
+            }
+        }
+
+        function openTailoredLink() {
+            const linkInput = document.getElementById('tailoredSolutionLinkInput');
+            let url = linkInput ? linkInput.value.trim() : "";
+            if (!url && suiteState.tailoredLink) {
+                url = suiteState.tailoredLink;
+            }
+            if (!url) {
+                alert("Please enter or save a valid recommendation URL first.");
+                return;
+            }
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+            window.open(url, '_blank');
+        }
+
+        function autoSaveSecondaryLink(val) {
+            suiteState.tailoredLink2 = val.trim();
+            saveState();
+            
+            const indicator = document.getElementById('autoSaveIndicator');
+            if (indicator) {
+                indicator.classList.remove('hidden');
+                setTimeout(() => {
+                    indicator.classList.add('hidden');
+                }, 1500);
+            }
+        }
+
+        function openSecondaryLink() {
+            const linkInput = document.getElementById('tailoredSolutionLinkInput2');
+            let url = linkInput ? linkInput.value.trim() : "";
+            if (!url && suiteState.tailoredLink2) {
+                url = suiteState.tailoredLink2;
+            }
+            if (!url) {
+                alert("Please enter a valid secondary recommendation URL first.");
+                return;
+            }
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+            window.open(url, '_blank');
+        }
+
+        function updateAllocationChart() {
+            const ctx = document.getElementById('allocationChart').getContext('2d');
+            const totalIncome = suiteState.incomes.a + suiteState.incomes.b + suiteState.incomes.c;
+            const totalExpenses = suiteState.jars.reduce((sum, jar) => sum + jar.items.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0), 0);
+            const surplus = Math.max(0, totalIncome - totalExpenses);
+
+            let labels = ['Needs (Bills)', 'Wants', 'Savings / EF', 'Insurance', 'Charity', 'Surplus'];
+            let data = [
+                suiteState.jars[0].items.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0),
+                suiteState.jars[1].items.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0),
+                suiteState.jars[2].items.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0),
+                suiteState.jars[3].items.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0),
+                suiteState.jars[4].items.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0),
+                surplus
+            ];
+
+            if (allocationChartInstance) {
+                allocationChartInstance.data.labels = labels;
+                allocationChartInstance.data.datasets[0].data = data;
+                allocationChartInstance.update();
+                return;
+            }
+
+            allocationChartInstance = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#D61A0C', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#1E293B']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: 12
+                    },
+                    plugins: {
+                        legend: { position: 'right', labels: { boxWidth: 12, font: { size: 10 } } },
+                        datalabels: {
+                            color: '#fff',
+                            font: { weight: 'bold', size: 9 },
+                            formatter: (v) => v > 0 ? '₱' + Math.round(v/1000) + 'k' : ''
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
